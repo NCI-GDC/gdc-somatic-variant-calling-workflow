@@ -11,31 +11,44 @@ requirements:
     dockerPull: quay.io/ncigdc/samtools:9bbccff355bf
 
 inputs:
-  - id: input_bam_path
+  - id: ref
+    type: File
+    inputBinding:
+      position: 1
+      prefix: -f
+    secondaryFiles:
+      - '.fai'
+
+  - id: region
     type: File
     inputBinding:
       position: 2
-    secondaryFiles:
-      - '^.bai'
+      prefix: -l
 
-  - id: region
-    type: string
+  - id: normal_bam
+    type: File
     inputBinding:
       position: 3
+    secondaryFiles:
+      - '.bai'
 
-  - id: output_bam_path
-    type: string
+  - id: tumor_bam
+    type: File
     inputBinding:
       position: 4
+    secondaryFiles:
+      - '.bai'
+
+  - id: output
+    type: string
+    inputBinding:
+      position: 5
       prefix: ">"
 
 outputs:
   - id: output_file
     type: File
     outputBinding:
-      glob: $(inputs.output_bam_path)
+      glob: $(inputs.output)
 
-baseCommand: ['samtools', 'view']
-arguments:
-  - valueFrom: "-b"
-    position: 1
+baseCommand: ['samtools', 'mpileup']

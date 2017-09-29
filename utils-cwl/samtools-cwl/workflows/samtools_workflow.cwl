@@ -16,7 +16,7 @@ inputs:
   - id: tumor_input
     type: File
   - id: region
-    type: string
+    type: File
   - id: reference
     type: File
   - id: prefix

@@ -16,8 +16,6 @@ inputs:
     type: File
   - id: region
     type: File
-  - id: prefix
-    type: string
 
 outputs:
   - id: normal_chunk
@@ -35,9 +33,6 @@ steps:
         source: normal_input
       - id: region
         source: region
-      - id: output_bam_path
-        source: prefix
-        valueFrom: $(self + '.normal.bam')
     out:
       - id: output_file
 
@@ -56,9 +51,6 @@ steps:
         source: tumor_input
       - id: region
         source: region
-      - id: output_bam_path
-        source: prefix
-        valueFrom: $(self + '.tumor.bam')
     out:
       - id: output_file
 

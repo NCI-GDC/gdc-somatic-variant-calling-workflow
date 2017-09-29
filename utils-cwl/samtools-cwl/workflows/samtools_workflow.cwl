@@ -19,8 +19,6 @@ inputs:
     type: File
   - id: reference
     type: File
-  - id: prefix
-    type: string
 
 outputs:
   - id: normal_chunk
@@ -43,8 +41,6 @@ steps:
         source: tumor_input
       - id: region
         source: region
-      - id: prefix
-        source: prefix
     out:
       - id: normal_chunk
       - id: tumor_chunk
@@ -60,8 +56,5 @@ steps:
         source: split/normal_chunk
       - id: tumor_bam
         source: split/tumor_chunk
-      - id: output
-        source: prefix
-        valueFrom: $(self + '.mpileup')
     out:
       - id: output_file

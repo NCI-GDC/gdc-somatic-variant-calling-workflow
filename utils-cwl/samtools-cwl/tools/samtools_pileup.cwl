@@ -23,6 +23,8 @@ inputs:
     type: File
     inputBinding:
       position: 2
+      loadContents: true
+      valueFrom: null
       prefix: -l
 
   - id: normal_bam
@@ -39,16 +41,14 @@ inputs:
     secondaryFiles:
       - '.bai'
 
-  - id: output
-    type: string
-    inputBinding:
-      position: 5
-      prefix: ">"
-
 outputs:
   - id: output_file
     type: File
     outputBinding:
-      glob: $(inputs.output)
+      glob: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_') + '.mpileup')
 
 baseCommand: ['samtools', 'mpileup']
+arguments:
+  - valueFrom: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_') + '.mpileup')
+    position: 5
+    prefix: ">"

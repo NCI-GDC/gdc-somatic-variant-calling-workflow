@@ -22,21 +22,20 @@ inputs:
     type: File
     inputBinding:
       loadContents: true
-      valueFrom: $(self.contents.replace(/\n/g, '').replace(/\t/, ':').replace(/\t/, '-'))
-
-  - id: output_bam_path
-    type: string
-    inputBinding:
-      position: 4
-      prefix: ">"
+      valueFrom: null
 
 outputs:
   - id: output_file
     type: File
     outputBinding:
-      glob: $(inputs.output_bam_path)
+      glob: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_'))_$(inputs.input_bam_path.basename)
 
 baseCommand: ['samtools', 'view']
 arguments:
-  - valueFrom: "-b"
+  - valueFrom: '-b'
     position: 1
+  - valueFrom: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/, ':').replace(/\t/, '-'))
+    position: 3
+  - valueFrom: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_'))_$(inputs.input_bam_path.basename)
+    position: 4
+    prefix: '>'

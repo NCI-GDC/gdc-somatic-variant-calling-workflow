@@ -51,7 +51,7 @@ outputs:
   - id: output
     type: File
     outputBinding:
-      glob: $(inputs.local_dir.basename)/$(inputs.s3uri.split('/').slice(-1)[0])
+      glob: $(inputs.local_dir.basename)/$(inputs.s3url.split('/').slice(-1)[0])
 
 baseCommand: [aws]
 arguments:

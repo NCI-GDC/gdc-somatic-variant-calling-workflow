@@ -8,7 +8,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/samtools:9bbccff355bf
+    dockerPull: quay.io/ncigdc/samtools:1.1
 
 inputs:
   - id: input_bam_path
@@ -16,7 +16,7 @@ inputs:
     inputBinding:
       position: 2
     secondaryFiles:
-      - '^.bai'
+      - '.bai'
 
   - id: region
     type: File

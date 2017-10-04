@@ -13,10 +13,6 @@ requirements:
       - envName: "AWS_SHARED_CREDENTIALS_FILE"
         envValue: $(inputs.aws_shared_credentials_file.path)
   - class: InlineJavascriptRequirement
-  - class: InitialWorkDirRequirement
-    listing:
-      - entry: $(inputs.local_dir)
-        writable: True
 
 inputs:
   - id: aws_config_file
@@ -42,16 +38,11 @@ inputs:
     inputBinding:
       position: 4
 
-  - id: local_dir
-    type: Directory
-    inputBinding:
-      position: 5
-
 outputs:
   - id: output
     type: File
     outputBinding:
-      glob: $(inputs.local_dir.basename)/$(inputs.s3url.split('/').slice(-1)[0])
+      glob: $(inputs.s3url.split('/').slice(-1)[0])
 
 baseCommand: [aws]
 arguments:
@@ -60,3 +51,6 @@ arguments:
 
   - valueFrom: cp
     position: 1
+
+  - valueFrom: .
+    position: 99

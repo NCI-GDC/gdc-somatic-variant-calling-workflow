@@ -22,7 +22,7 @@ inputs:
     type: File
     inputBinding:
       loadContents: true
-      valueFrom: null
+      valueFrom: $(null)
 
 outputs:
   - id: output_file
@@ -36,6 +36,4 @@ arguments:
     position: 1
   - valueFrom: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/, ':').replace(/\t/, '-'))
     position: 3
-  - valueFrom: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_'))_$(inputs.input_bam_path.basename)
-    position: 4
-    prefix: '>'
+stdout: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_'))_$(inputs.input_bam_path.basename)

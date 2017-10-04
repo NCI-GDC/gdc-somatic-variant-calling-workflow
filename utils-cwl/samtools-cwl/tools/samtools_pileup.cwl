@@ -24,7 +24,7 @@ inputs:
     inputBinding:
       position: 2
       loadContents: true
-      valueFrom: null
+      valueFrom: $(null)
       prefix: -l
 
   - id: normal_bam
@@ -48,7 +48,4 @@ outputs:
       glob: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_') + '.mpileup')
 
 baseCommand: ['samtools', 'mpileup']
-arguments:
-  - valueFrom: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_') + '.mpileup')
-    position: 5
-    prefix: ">"
+stdout: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_') + '.mpileup')

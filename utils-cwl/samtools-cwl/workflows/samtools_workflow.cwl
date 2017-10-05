@@ -49,7 +49,7 @@ steps:
       - id: tumor_chunk
 
   - id: mpileup_pair
-    run: ../tools/samtools_pileup.cwl
+    run: ../tools/samtools_mpileup.cwl
     in:
       - id: ref
         source: reference

@@ -19,6 +19,9 @@ inputs:
     type: File
   - id: reference
     type: File
+  - id: min_MQ
+    type: int
+    default: 1
 
 outputs:
   - id: normal_chunk
@@ -56,5 +59,7 @@ steps:
         source: split/normal_chunk
       - id: tumor_bam
         source: split/tumor_chunk
+      - id: min_MQ
+        source: min_MQ
     out:
       - id: output_file

@@ -14,10 +14,17 @@ inputs:
   - id: ref
     type: File
     inputBinding:
-      position: 1
+      position: 0
       prefix: -f
     secondaryFiles:
       - '.fai'
+
+  - id: min_MQ
+    type: int
+    default: 1
+    inputBinding:
+      position: 1
+      prefix: -q
 
   - id: region
     type: File

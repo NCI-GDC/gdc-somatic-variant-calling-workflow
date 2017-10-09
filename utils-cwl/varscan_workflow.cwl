@@ -160,7 +160,7 @@ steps:
 
   - id: varscan_process_somatic
     run: varscan_process_somatic_workflow.cwl
-    scatter: varscan_process_somatic/input_vcf
+    scatter: input_vcf
     in:
       - id: java_opts
         source: java_opts
@@ -191,7 +191,7 @@ steps:
         source: varscan_process_somatic/SOMATIC_HC
       - id: output_filename
         source: prefix
-        valueFrom: $(self + '_varscan2.snp.indel.somatic.hc.updated.merged.vcf')
+        valueFrom: $(self + '_varscan2.snp.indel.somatic.hc.updated.merged.vcf.gz')
       - id: ref_dict
         source: ref_dict
     out:

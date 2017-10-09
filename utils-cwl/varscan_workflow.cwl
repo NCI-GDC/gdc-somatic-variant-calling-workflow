@@ -60,14 +60,15 @@ inputs:
     default: 0.05
   - id: strand_filter
     doc: If set to 1, removes variants with >90% strand bias (0)
-    type: ['null', int]
+    type: int
     default: 0
   - id: validation
-    doc: If set to 1, outputs all compared positions even if non-variant
-    type: ['null', int]
+    doc: If set, outputs all compared positions even if non-variant
+    type: boolean
+    default: false
   - id: output_vcf
     doc: If set to 1, output VCF instead of VarScan native format
-    type: ['null', int]
+    type: int
     default: 1
   - id: min_tumor_freq
     doc: Minimun variant allele frequency in tumor [0.10]

@@ -70,13 +70,29 @@ inputs:
     doc: Human genome reference dictionary file.
   dbsnp:
     type: File
-    doc: dbSNP reference file. GDC default is dbSNP build-144. Must be bgzip'd and tabix'd for MuSE.
+    doc: dbSNP reference file. GDC default is dbSNP build-144. Must be bgzip'd and tabix'd.
+  pon:
+    type: File
+    doc: Panel of normal reference file. Must be bgzip'd and tabix'd.
+  cosmic:
+    type: File
+    doc: Cosmic reference file. GDC default is COSMICv75. Must be bgzip'd and tabix'd.
 
 ###MUSE_INPUTS###
   exp_strat:
     type: string
     default: 'E'
     doc: MuSE parameter. GDC default is E. Experiment strategy. E stands for WXS, and G for WGS. (E/G)
+
+###MUTECT2_INPUTS###
+  cont:
+    type: float
+    default: 0.02
+    doc: MuTect2 parameter. GDC default is 0.02. Contamination estimation score.
+  duscb:
+    type: boolean
+    default: false
+    doc: MuTect2 parameter. GDC default is False. If set, MuTect2 will not use soft clipped bases.
 
 ###SOMATICSNIPER_INPUTS###
   map_q:
@@ -203,6 +219,12 @@ outputs:
     type: File
     outputSource: muse_sump/MUSE_OUTPUT
 
+  mutect2_vcf:
+    type:
+      type: array
+      items: File
+    outputSource: mutect2/MUTECT2_OUTPUT
+
 steps:
   prepare_bam_input:
     run: utils-cwl/prepare_bam_input.cwl
@@ -311,3 +333,20 @@ steps:
         source: output_id
         valueFrom: $(self + '.muse.vcf')
     out: [MUSE_OUTPUT]
+
+  mutect2:
+    run: submodules/mutect2-cwl/tools/mutect2_somatic_variant.cwl
+    scatter: [region, tumor_bam, normal_bam]
+    scatterMethod: dotproduct
+    in:
+      java_heap: java_opts
+      ref: reference
+      region: faidx_to_bed/output_bed
+      tumor_bam: samtools_workflow/tumor_chunk
+      normal_bam: samtools_workflow/normal_chunk
+      pon: pon
+      cosmic: cosmic
+      dbsnp: dbsnp
+      cont: cont
+      duscb: duscb
+    out: [MUTECT2_OUTPUT]

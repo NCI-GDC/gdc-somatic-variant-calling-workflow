@@ -203,29 +203,22 @@ inputs:
     doc: Varscan2 parameter. GDC default is 0.07. P-value for high-confidence calling.
 
 outputs:
-  somaticsniper_vcf:
-    type:
-      type: array
-      items: File
-    outputSource: somaticsniper/RAW_VCF
-
-  varscan2_vcf:
-    type:
-      type: array
-      items: File
-    outputSource: varscan2/MAIN_OUTPUT
-
   muse_vcf:
     type: File
-    outputSource: muse_sump/MUSE_OUTPUT
-
+    outputSource: sort_muse_vcf/sorted_vcf
   mutect2_vcf:
-    type:
-      type: array
-      items: File
-    outputSource: mutect2/MUTECT2_OUTPUT
+    type: File
+    outputSource: sort_mutect2_vcf/sorted_vcf
+  somaticsniper_vcf:
+    type: File
+    outputSource: sort_somaticsniper_vcf/sorted_vcf
+  varscan2_vcf:
+    type: File
+    outputSource: sort_varscan2_vcf/sorted_vcf
 
 steps:
+
+###PREPARATION###
   prepare_bam_input:
     run: utils-cwl/prepare_bam_input.cwl
     in:
@@ -258,53 +251,7 @@ steps:
       min_MQ: map_q
     out: [normal_chunk, tumor_chunk, chunk_mpileup]
 
-  somaticsniper:
-    run: submodules/somaticsniper-cwl/workflows/somaticsniper_workflow.cwl
-    scatter: [normal_input, tumor_input, mpileup]
-    scatterMethod: dotproduct
-    in:
-      normal_input: samtools_workflow/normal_chunk
-      tumor_input: samtools_workflow/tumor_chunk
-      mpileup: samtools_workflow/chunk_mpileup
-      reference: reference
-      map_q: map_q
-      base_q: base_q
-      loh: loh
-      gor: gor
-      psc: psc
-      ppa: ppa
-      pps: pps
-      theta: theta
-      nhap: nhap
-      pd: pd
-      fout: fout
-    out: [RAW_VCF, POST_LOH_VCF, POST_HC_VCF]
-
-  varscan2:
-    run: utils-cwl/varscan_workflow.cwl
-    scatter: tn_pair_pileup
-    in:
-      java_opts: java_opts
-      tn_pair_pileup: samtools_workflow/chunk_mpileup
-      ref_dict: reference_dict
-      prefix: output_id
-      min_coverage: min_coverage
-      min_cov_normal: min_cov_normal
-      min_cov_tumor: min_cov_tumor
-      min_var_freq: min_var_freq
-      min_freq_for_hom: min_freq_for_hom
-      normal_purity: normal_purity
-      tumor_purity: tumor_purity
-      vs_p_value: vs_p_value
-      somatic_p_value: somatic_p_value
-      strand_filter: strand_filter
-      validation: validation
-      output_vcf: output_vcf
-      min_tumor_freq: min_tumor_freq
-      max_normal_freq: max_normal_freq
-      vps_p_value: vps_p_value
-    out: [GERMLINE_ALL, GERMLINE_HC, LOH_ALL, LOH_HC, SOMATIC_ALL, SOMATIC_HC, MAIN_OUTPUT]
-
+###MUSE_PIPELINE###
   muse_call:
     run: submodules/muse-cwl/tools/muse_call.cwl
     scatter: [region, tumor_bam, normal_bam]
@@ -334,6 +281,17 @@ steps:
         valueFrom: $(self + '.muse.vcf')
     out: [MUSE_OUTPUT]
 
+  sort_muse_vcf:
+    run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
+    in:
+      ref_dict: reference_dict
+      output_vcf:
+        source: output_id
+        valueFrom: $(self + '.muse.vcf.gz')
+      input_vcf: muse_sump/MUSE_OUTPUT
+    out: [sorted_vcf]
+
+###MUTECT2_PIPELINE###
   mutect2:
     run: submodules/mutect2-cwl/tools/mutect2_somatic_variant.cwl
     scatter: [region, tumor_bam, normal_bam]
@@ -350,3 +308,82 @@ steps:
       cont: cont
       duscb: duscb
     out: [MUTECT2_OUTPUT]
+
+  sort_mutect2_vcf:
+    run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
+    in:
+      ref_dict: reference_dict
+      output_vcf:
+        source: output_id
+        valueFrom: $(self + '.mutect2.vcf.gz')
+      input_vcf: mutect2/MUTECT2_OUTPUT
+    out: [sorted_vcf]
+
+###SOMATICSNIPER_PIPELINE###
+  somaticsniper:
+    run: utils-cwl/somaticsniper_workflow.cwl
+    scatter: [normal_input, tumor_input, mpileup]
+    scatterMethod: dotproduct
+    in:
+      normal_input: samtools_workflow/normal_chunk
+      tumor_input: samtools_workflow/tumor_chunk
+      mpileup: samtools_workflow/chunk_mpileup
+      reference: reference
+      map_q: map_q
+      base_q: base_q
+      loh: loh
+      gor: gor
+      psc: psc
+      ppa: ppa
+      pps: pps
+      theta: theta
+      nhap: nhap
+      pd: pd
+      fout: fout
+    out: [ANNOTATED_VCF]
+
+  sort_somaticsniper_vcf:
+    run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
+    in:
+      ref_dict: reference_dict
+      output_vcf:
+        source: output_id
+        valueFrom: $(self + '.somaticsniper.vcf.gz')
+      input_vcf: somaticsniper/ANNOTATED_VCF
+    out: [sorted_vcf]
+
+###VARSCAN2_PIPELINE###
+  varscan2:
+    run: utils-cwl/varscan_workflow.cwl
+    scatter: tn_pair_pileup
+    in:
+      java_opts: java_opts
+      tn_pair_pileup: samtools_workflow/chunk_mpileup
+      ref_dict: reference_dict
+      prefix: output_id
+      min_coverage: min_coverage
+      min_cov_normal: min_cov_normal
+      min_cov_tumor: min_cov_tumor
+      min_var_freq: min_var_freq
+      min_freq_for_hom: min_freq_for_hom
+      normal_purity: normal_purity
+      tumor_purity: tumor_purity
+      vs_p_value: vs_p_value
+      somatic_p_value: somatic_p_value
+      strand_filter: strand_filter
+      validation: validation
+      output_vcf: output_vcf
+      min_tumor_freq: min_tumor_freq
+      max_normal_freq: max_normal_freq
+      vps_p_value: vps_p_value
+    out: [GERMLINE_ALL, GERMLINE_HC, LOH_ALL, LOH_HC, SOMATIC_ALL, SOMATIC_HC, MAIN_OUTPUT]
+
+  sort_varscan2_vcf:
+    run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
+    in:
+      ref_dict: reference_dict
+      output_vcf:
+        source: output_id
+        valueFrom: $(self + '.varscan2.vcf.gz')
+      input_vcf: varscan2/MAIN_OUTPUT
+    out: [sorted_vcf]

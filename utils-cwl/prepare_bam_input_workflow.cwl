@@ -4,6 +4,9 @@ cwlVersion: v1.0
 
 class: Workflow
 
+requirements:
+  - class: ResourceRequirement
+
 inputs:
   aws_config_file:
     type: File

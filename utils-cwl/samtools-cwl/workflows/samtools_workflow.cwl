@@ -9,7 +9,8 @@ requirements:
   - class: StepInputExpressionRequirement
   - class: MultipleInputFeatureRequirement
   - class: SubworkflowFeatureRequirement
-
+  - class: ResourceRequirement
+  
 inputs:
   - id: normal_input
     type: File

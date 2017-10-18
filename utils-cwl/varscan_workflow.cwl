@@ -11,7 +11,8 @@ requirements:
   - class: MultipleInputFeatureRequirement
   - class: SubworkflowFeatureRequirement
   - class: ScatterFeatureRequirement
-
+  - class: ResourceRequirement
+  
 class: Workflow
 
 inputs:

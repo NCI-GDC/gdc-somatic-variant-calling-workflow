@@ -13,7 +13,8 @@ requirements:
   - class: SubworkflowFeatureRequirement
   - class: ScatterFeatureRequirement
   - class: MultipleInputFeatureRequirement
-
+  - class: ResourceRequirement
+  
 inputs:
 
 ###AWS_INPUTS###
@@ -52,6 +53,7 @@ inputs:
     doc: Java option flags for all the java cmd. GDC default is 3G.
   blocksize:
     type: int
+    default: 300000000
     doc: Chromosome chunk size for scatter and gather.
   usedecoy:
     type: boolean
@@ -220,7 +222,7 @@ steps:
 
 ###PREPARATION###
   prepare_bam_input:
-    run: utils-cwl/prepare_bam_input.cwl
+    run: utils-cwl/prepare_bam_input_workflow.cwl
     in:
       aws_config_file: aws_config_file
       aws_shared_credentials_file: aws_shared_credentials_file

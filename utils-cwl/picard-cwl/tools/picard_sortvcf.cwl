@@ -8,7 +8,8 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/picard
-
+  - class: ResourceRequirement
+  
 inputs:
   - id: ref_dict
     type: File

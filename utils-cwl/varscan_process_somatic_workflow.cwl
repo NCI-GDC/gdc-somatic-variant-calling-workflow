@@ -9,7 +9,8 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: StepInputExpressionRequirement
   - class: MultipleInputFeatureRequirement
-
+  - class: ResourceRequirement
+  
 class: Workflow
 
 inputs:

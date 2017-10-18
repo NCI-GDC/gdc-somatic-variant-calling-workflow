@@ -9,7 +9,8 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/picard
-
+  - class: ResourceRequirement
+  
 class: CommandLineTool
 
 inputs:

@@ -10,7 +10,8 @@ requirements:
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/picard
   - class: ResourceRequirement
-  
+    coresMax: 1
+
 class: CommandLineTool
 
 inputs:

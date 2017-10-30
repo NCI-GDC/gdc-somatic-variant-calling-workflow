@@ -14,7 +14,8 @@ requirements:
         entryname: $(inputs.input_bam.basename)
         writable: True
   - class: ResourceRequirement
-  
+    coresMax: 1
+    
 inputs:
   - id: input_bam
     type: File

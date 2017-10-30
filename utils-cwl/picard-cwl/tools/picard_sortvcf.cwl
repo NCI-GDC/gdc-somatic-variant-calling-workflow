@@ -9,7 +9,8 @@ requirements:
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/picard
   - class: ResourceRequirement
-  
+    coresMax: 1
+
 inputs:
   - id: ref_dict
     type: File

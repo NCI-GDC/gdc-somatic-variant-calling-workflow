@@ -14,7 +14,8 @@ requirements:
   - class: ScatterFeatureRequirement
   - class: MultipleInputFeatureRequirement
   - class: ResourceRequirement
-  
+    coresMax: 40
+    
 inputs:
 
 ###AWS_INPUTS###
@@ -216,7 +217,7 @@ outputs:
     outputSource: sort_somaticsniper_vcf/sorted_vcf
   varscan2_vcf:
     type: File
-    outputSource: sort_varscan2_vcf/sorted_vcf
+    outputSource: varscan2_mergevcf/output_vcf_file
 
 steps:
 
@@ -362,7 +363,6 @@ steps:
       java_opts: java_opts
       tn_pair_pileup: samtools_workflow/chunk_mpileup
       ref_dict: reference_dict
-      prefix: output_id
       min_coverage: min_coverage
       min_cov_normal: min_cov_normal
       min_cov_tumor: min_cov_tumor
@@ -378,14 +378,35 @@ steps:
       min_tumor_freq: min_tumor_freq
       max_normal_freq: max_normal_freq
       vps_p_value: vps_p_value
-    out: [GERMLINE_ALL, GERMLINE_HC, LOH_ALL, LOH_HC, SOMATIC_ALL, SOMATIC_HC, MAIN_OUTPUT]
+    out: [SNP_SOMATIC_HC, INDEL_SOMATIC_HC]
 
-  sort_varscan2_vcf:
+  sort_snp_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
       ref_dict: reference_dict
       output_vcf:
         source: output_id
-        valueFrom: $(self + '.varscan2.vcf.gz')
-      input_vcf: varscan2/MAIN_OUTPUT
+        valueFrom: $(self + '.snp.varscan2.vcf.gz')
+      input_vcf: varscan2/SNP_SOMATIC_HC
     out: [sorted_vcf]
+
+  sort_indel_vcf:
+    run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
+    in:
+      ref_dict: reference_dict
+      output_vcf:
+        source: output_id
+        valueFrom: $(self + '.indel.varscan2.vcf.gz')
+      input_vcf: varscan2/INDEL_SOMATIC_HC
+    out: [sorted_vcf]
+
+  varscan2_mergevcf:
+    run: utils-cwl/picard-cwl/tools/picard_mergevcf.cwl
+    in:
+      java_opts: java_opts
+      input_vcf: [sort_snp_vcf/sorted_vcf, sort_indel_vcf/sorted_vcf]
+      output_filename:
+        source: output_id
+        valueFrom: $(self + '.varscan2.vcf.gz')
+      ref_dict: reference_dict
+    out: [output_vcf_file]

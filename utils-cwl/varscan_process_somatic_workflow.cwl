@@ -10,7 +10,8 @@ requirements:
   - class: StepInputExpressionRequirement
   - class: MultipleInputFeatureRequirement
   - class: ResourceRequirement
-  
+    coresMax: 1
+
 class: Workflow
 
 inputs:
@@ -39,21 +40,6 @@ inputs:
     doc: Reference sequence dictionary file
 
 outputs:
-  - id: GERMLINE_ALL
-    type: File
-    outputSource: process_somatic/germline_all
-  - id: GERMLINE_HC
-    type: File
-    outputSource: process_somatic/germline_hc
-  - id: LOH_ALL
-    type: File
-    outputSource: process_somatic/loh_all
-  - id: LOH_HC
-    type: File
-    outputSource: process_somatic/loh_hc
-  - id: SOMATIC_ALL
-    type: File
-    outputSource: process_somatic/somatic_all
   - id: SOMATIC_HC
     type: File
     outputSource: picard_update_seq_dict/output_vcf_file

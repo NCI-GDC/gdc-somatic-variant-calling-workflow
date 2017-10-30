@@ -12,7 +12,8 @@ requirements:
   - class: SubworkflowFeatureRequirement
   - class: ScatterFeatureRequirement
   - class: ResourceRequirement
-  
+    coresMax: 2
+
 class: Workflow
 
 inputs:
@@ -86,43 +87,14 @@ inputs:
   - id: ref_dict
     doc: reference sequence dictionary file
     type: File
-  - id: prefix
-    type: string
 
 outputs:
-  - id: GERMLINE_ALL
-    type:
-      type: array
-      items: File
-    outputSource: varscan_process_somatic/GERMLINE_ALL
-  - id: GERMLINE_HC
-    type:
-      type: array
-      items: File
-    outputSource: varscan_process_somatic/GERMLINE_HC
-  - id: LOH_ALL
-    type:
-      type: array
-      items: File
-    outputSource: varscan_process_somatic/LOH_ALL
-  - id: LOH_HC
-    type:
-      type: array
-      items: File
-    outputSource: varscan_process_somatic/LOH_HC
-  - id: SOMATIC_ALL
-    type:
-      type: array
-      items: File
-    outputSource: varscan_process_somatic/SOMATIC_ALL
-  - id: SOMATIC_HC
-    type:
-      type: array
-      items: File
-    outputSource: varscan_process_somatic/SOMATIC_HC
-  - id: MAIN_OUTPUT
+  - id: SNP_SOMATIC_HC
     type: File
-    outputSource: mergevcf/output_vcf_file
+    outputSource: varscan_process_somatic_snp/SOMATIC_HC
+  - id: INDEL_SOMATIC_HC
+    type: File
+    outputSource: varscan_process_somatic_indel/SOMATIC_HC
 
 steps:
   - id: varscan_somatic
@@ -160,14 +132,13 @@ steps:
       - id: snp_output
       - id: indel_output
 
-  - id: varscan_process_somatic
+  - id: varscan_process_somatic_snp
     run: varscan_process_somatic_workflow.cwl
-    scatter: input_vcf
     in:
       - id: java_opts
         source: java_opts
       - id: input_vcf
-        source: [varscan_somatic/snp_output, varscan_somatic/indel_output]
+        source: varscan_somatic/snp_output
       - id: min_tumor_freq
         source: min_tumor_freq
       - id: max_normal_freq
@@ -177,24 +148,22 @@ steps:
       - id: ref_dict
         source: ref_dict
     out:
-      - id: GERMLINE_ALL
-      - id: GERMLINE_HC
-      - id: LOH_ALL
-      - id: LOH_HC
-      - id: SOMATIC_ALL
       - id: SOMATIC_HC
 
-  - id: mergevcf
-    run: picard-cwl/tools/picard_mergevcf.cwl
+  - id: varscan_process_somatic_indel
+    run: varscan_process_somatic_workflow.cwl
     in:
       - id: java_opts
         source: java_opts
       - id: input_vcf
-        source: varscan_process_somatic/SOMATIC_HC
-      - id: output_filename
-        source: prefix
-        valueFrom: $(self + '_varscan2.snp.indel.somatic.hc.updated.merged.vcf.gz')
+        source: varscan_somatic/indel_output
+      - id: min_tumor_freq
+        source: min_tumor_freq
+      - id: max_normal_freq
+        source: max_normal_freq
+      - id: p_value
+        source: vps_p_value
       - id: ref_dict
         source: ref_dict
     out:
-      - id: output_vcf_file
+      - id: SOMATIC_HC

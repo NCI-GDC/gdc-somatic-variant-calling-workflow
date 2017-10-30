@@ -13,7 +13,6 @@ requirements:
       - envName: "AWS_SHARED_CREDENTIALS_FILE"
         envValue: $(inputs.aws_shared_credentials_file.path)
   - class: InlineJavascriptRequirement
-  - class: ResourceRequirement
   
 inputs:
   - id: aws_config_file

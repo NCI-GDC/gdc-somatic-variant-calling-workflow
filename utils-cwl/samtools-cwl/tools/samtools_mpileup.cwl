@@ -9,8 +9,7 @@ requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/samtools:1.1
-  - class: ResourceRequirement
-  
+
 inputs:
   - id: ref
     type: File
@@ -30,22 +29,20 @@ inputs:
   - id: region
     type: File
     inputBinding:
-      position: 2
       loadContents: true
       valueFrom: $(null)
-      prefix: -l
 
   - id: normal_bam
     type: File
     inputBinding:
-      position: 3
+      position: 4
     secondaryFiles:
       - '.bai'
 
   - id: tumor_bam
     type: File
     inputBinding:
-      position: 4
+      position: 5
     secondaryFiles:
       - '.bai'
 
@@ -57,3 +54,9 @@ outputs:
 
 baseCommand: ['samtools', 'mpileup']
 stdout: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_') + '.mpileup')
+arguments:
+  - valueFrom: '-B'
+    position: 2
+  - valueFrom: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/, ':').replace(/\t/, '-'))
+    prefix: '-r'
+    position: 3

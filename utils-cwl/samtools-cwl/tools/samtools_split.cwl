@@ -9,7 +9,6 @@ requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/samtools:1.1
-  - class: ResourceRequirement
   
 inputs:
   - id: input_bam_path

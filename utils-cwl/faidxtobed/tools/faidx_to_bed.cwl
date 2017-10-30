@@ -7,7 +7,6 @@ class: CommandLineTool
 requirements:
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/fadixtobed:1.0
-  - class: ResourceRequirement
   
 inputs:
   - id: ref_fai

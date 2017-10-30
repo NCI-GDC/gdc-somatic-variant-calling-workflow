@@ -14,7 +14,6 @@ requirements:
       - entry: $(inputs.input_bam_path)
         entryname: $(inputs.input_bam_path.basename)
         writable: True
-  - class: ResourceRequirement
   
 inputs:
   - id: input_bam_path

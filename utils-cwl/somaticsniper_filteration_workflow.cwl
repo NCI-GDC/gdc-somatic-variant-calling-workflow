@@ -8,7 +8,6 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: StepInputExpressionRequirement
   - class: MultipleInputFeatureRequirement
-  - class: ResourceRequirement
   
 inputs:
   - id: vcf

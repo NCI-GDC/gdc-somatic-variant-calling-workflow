@@ -7,7 +7,6 @@ class: CommandLineTool
 requirements:
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/somaticsniper_raw_annotation:1.0
-  - class: ResourceRequirement
   
 inputs:
   raw_vcf:

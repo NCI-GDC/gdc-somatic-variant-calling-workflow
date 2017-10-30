@@ -14,3 +14,7 @@
 	path = submodules/mutect2-cwl
 	url = git@github.com:NCI-GDC/mutect2-cwl.git
 	branch = submodule
+[submodule "submodules/variant-filtration-cwl"]
+	path = submodules/variant-filtration-cwl
+	url = git@github.com:NCI-GDC/variant-filtration-cwl.git
+	branch = submodule

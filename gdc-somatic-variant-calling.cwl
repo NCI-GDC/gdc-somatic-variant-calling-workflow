@@ -15,7 +15,7 @@ requirements:
   - class: MultipleInputFeatureRequirement
   - class: ResourceRequirement
     coresMax: 40
-    
+
 inputs:
 
 ###AWS_INPUTS###
@@ -43,11 +43,20 @@ inputs:
   tumor_s3url:
     type: string
     doc: Aws s3 url for tumor bam file.
+  output_s3cfg_section:
+    type: string
+    doc: Aws section for output file. Should be in the aws config file.
+  output_endpoint_url:
+    type: string
+    doc: Aws endpoint url for aws section of output file.
+  output_s3url:
+    type: string
+    doc: Aws s3 url for output file.
 
 ###GENERAL_INPUTS###
-  output_id:
+  job_id:
     type: string
-    doc: Output uuid. Served as a prefix for most VCF outputs.
+    doc: Job id. Served as a prefix for most VCF outputs.
   java_opts:
     type: string
     default: '3G'
@@ -270,7 +279,7 @@ steps:
     run: submodules/muse-cwl/tools/awk_merge.cwl
     in:
       call_outputs: muse_call/output_file
-      output_base: output_id
+      output_base: job_id
     out: [merged_file]
 
   muse_sump:
@@ -280,7 +289,7 @@ steps:
       call_output: awk_merge_muse/merged_file
       exp_strat: exp_strat
       output_base:
-        source: output_id
+        source: job_id
         valueFrom: $(self + '.muse.vcf')
     out: [MUSE_OUTPUT]
 
@@ -289,7 +298,7 @@ steps:
     in:
       ref_dict: reference_dict
       output_vcf:
-        source: output_id
+        source: job_id
         valueFrom: $(self + '.muse.vcf.gz')
       input_vcf: muse_sump/MUSE_OUTPUT
     out: [sorted_vcf]
@@ -317,7 +326,7 @@ steps:
     in:
       ref_dict: reference_dict
       output_vcf:
-        source: output_id
+        source: job_id
         valueFrom: $(self + '.mutect2.vcf.gz')
       input_vcf: mutect2/MUTECT2_OUTPUT
     out: [sorted_vcf]
@@ -350,7 +359,7 @@ steps:
     in:
       ref_dict: reference_dict
       output_vcf:
-        source: output_id
+        source: job_id
         valueFrom: $(self + '.somaticsniper.vcf.gz')
       input_vcf: somaticsniper/ANNOTATED_VCF
     out: [sorted_vcf]
@@ -385,7 +394,7 @@ steps:
     in:
       ref_dict: reference_dict
       output_vcf:
-        source: output_id
+        source: job_id
         valueFrom: $(self + '.snp.varscan2.vcf.gz')
       input_vcf: varscan2/SNP_SOMATIC_HC
     out: [sorted_vcf]
@@ -395,7 +404,7 @@ steps:
     in:
       ref_dict: reference_dict
       output_vcf:
-        source: output_id
+        source: job_id
         valueFrom: $(self + '.indel.varscan2.vcf.gz')
       input_vcf: varscan2/INDEL_SOMATIC_HC
     out: [sorted_vcf]
@@ -406,7 +415,20 @@ steps:
       java_opts: java_opts
       input_vcf: [sort_snp_vcf/sorted_vcf, sort_indel_vcf/sorted_vcf]
       output_filename:
-        source: output_id
+        source: job_id
         valueFrom: $(self + '.varscan2.vcf.gz')
       ref_dict: reference_dict
     out: [output_vcf_file]
+
+###UPLOAD###
+  upload_outputs:
+    run: utils-cwl/aws/tools/aws_s3_put.cwl
+    scatter: local_file
+    in:
+      aws_config_file: aws_config_file
+      aws_shared_credentials_file: aws_shared_credentials_file
+      s3cfg_section:  output_s3cfg_section
+      endpoint_url: output_endpoint_url
+      local_file: [sort_muse_vcf/sorted_vcf, sort_mutect2_vcf/sorted_vcf, sort_somaticsniper_vcf/sorted_vcf, varscan2_mergevcf/output_vcf_file]
+      s3url: output_s3url
+    out: [output]

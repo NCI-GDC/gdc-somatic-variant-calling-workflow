@@ -13,7 +13,8 @@ requirements:
       - envName: "AWS_SHARED_CREDENTIALS_FILE"
         envValue: $(inputs.aws_shared_credentials_file.path)
   - class: InlineJavascriptRequirement
-  
+  - class: ShellCommandRequirement
+
 inputs:
   - id: aws_config_file
     type: File
@@ -25,16 +26,16 @@ inputs:
     type: string
     inputBinding:
       prefix: --profile
-      position: 2
+      position: 0
 
   - id: endpoint_url
     type: string
     inputBinding:
       prefix: --endpoint-url
-      position: 3
+      position: 1
 
-  - id: local_dir
-    type: Directory
+  - id: local_file
+    type: File
     inputBinding:
       position: 4
 
@@ -49,16 +50,13 @@ outputs:
     outputBinding:
       glob: "output"
 
-baseCommand: [aws]
+baseCommand: ['aws', '--no-verify-ssl']
 
 arguments:
   - valueFrom: s3
-    position: 0
+    position: 2
 
   - valueFrom: cp
-    position: 1
-
-  - valueFrom: '--recursive'
-    position: 99
+    position: 3
 
 stdout: 'output'

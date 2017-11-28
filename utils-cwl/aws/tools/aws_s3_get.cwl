@@ -14,7 +14,7 @@ requirements:
         envValue: $(inputs.aws_shared_credentials_file.path)
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
-    
+
 inputs:
   - id: aws_config_file
     type: File

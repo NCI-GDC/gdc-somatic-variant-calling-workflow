@@ -16,36 +16,36 @@ requirements:
   - class: ShellCommandRequirement
 
 inputs:
-  - id: aws_config_file
+  aws_config_file:
     type: File
 
-  - id: aws_shared_credentials_file
+  aws_shared_credentials_file:
     type: File
 
-  - id: s3cfg_section
+  s3cfg_section:
     type: string
     inputBinding:
       prefix: --profile
       position: 0
 
-  - id: endpoint_url
+  endpoint_url:
     type: string
     inputBinding:
       prefix: --endpoint-url
       position: 1
 
-  - id: local_file
+  local_file:
     type: File
     inputBinding:
       position: 4
 
-  - id: s3url
+  s3url:
     type: string
     inputBinding:
       position: 5
 
 outputs:
-  - id: output
+  output:
     type: File
     outputBinding:
       glob: "output"

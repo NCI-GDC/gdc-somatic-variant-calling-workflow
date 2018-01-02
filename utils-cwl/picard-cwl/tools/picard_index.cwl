@@ -15,9 +15,9 @@ requirements:
         writable: True
   - class: ResourceRequirement
     coresMax: 1
-    
+
 inputs:
-  - id: input_bam
+  input_bam:
     type: File
     inputBinding:
       prefix: 'I='
@@ -26,7 +26,7 @@ inputs:
       valueFrom: $(self.basename)
 
 outputs:
-  - id: bam_with_index
+  bam_with_index:
     type: File
     outputBinding:
       glob: $(inputs.input_bam.basename)

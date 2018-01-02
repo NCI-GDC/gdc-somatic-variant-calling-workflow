@@ -12,21 +12,21 @@ requirements:
     coresMax: 1
 
 inputs:
-  - id: ref_dict
+  ref_dict:
     type: File
     inputBinding:
       position: 3
       prefix: 'SEQUENCE_DICTIONARY='
       separate: false
 
-  - id: output_vcf
+  output_vcf:
     type: string
     inputBinding:
       position: 4
       prefix: 'OUTPUT='
       separate: false
 
-  - id: input_vcf
+  input_vcf:
     type:
       type: array
       items: File
@@ -37,7 +37,7 @@ inputs:
       position: 5
 
 outputs:
-  - id: sorted_vcf
+  sorted_vcf:
     type: File
     outputBinding:
       glob: $(inputs.output_vcf)

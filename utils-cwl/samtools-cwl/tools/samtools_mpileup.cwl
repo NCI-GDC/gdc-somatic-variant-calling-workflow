@@ -11,7 +11,7 @@ requirements:
     dockerPull: quay.io/ncigdc/samtools:1.1
 
 inputs:
-  - id: ref
+  ref:
     type: File
     inputBinding:
       position: 0
@@ -19,27 +19,27 @@ inputs:
     secondaryFiles:
       - '.fai'
 
-  - id: min_MQ
+  min_MQ:
     type: int
     default: 1
     inputBinding:
       position: 1
       prefix: -q
 
-  - id: region
+  region:
     type: File
     inputBinding:
       loadContents: true
       valueFrom: $(null)
 
-  - id: normal_bam
+  normal_bam:
     type: File
     inputBinding:
       position: 4
     secondaryFiles:
       - '.bai'
 
-  - id: tumor_bam
+  tumor_bam:
     type: File
     inputBinding:
       position: 5
@@ -47,7 +47,7 @@ inputs:
       - '.bai'
 
 outputs:
-  - id: output_file
+  output_file:
     type: File
     outputBinding:
       glob: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_') + '.mpileup')

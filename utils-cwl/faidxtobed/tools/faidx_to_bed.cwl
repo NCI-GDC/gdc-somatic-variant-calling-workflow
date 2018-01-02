@@ -7,16 +7,16 @@ class: CommandLineTool
 requirements:
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/fadixtobed:1.0
-  
+
 inputs:
-  - id: ref_fai
+  ref_fai:
     type: File
     doc: Reference faidx path. (i.e. GRCh38.d1.vd1.fa.fai)
     inputBinding:
       position: 1
       prefix: -f
 
-  - id: blocksize
+  blocksize:
     type: int
     default: 300000000
     doc: Parallel Block Size.
@@ -24,7 +24,7 @@ inputs:
       position: 2
       prefix: -b
 
-  - id: usedecoy
+  usedecoy:
     type: boolean
     doc: If specified, it will include all the decoy sequences in the faidx.
     inputBinding:
@@ -32,7 +32,7 @@ inputs:
       prefix: -a
 
 outputs:
-  - id: output_bed
+  output_bed:
     type:
       type: array
       items: File

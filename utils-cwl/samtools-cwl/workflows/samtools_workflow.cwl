@@ -11,55 +11,44 @@ requirements:
   - class: SubworkflowFeatureRequirement
 
 inputs:
-  - id: normal_input
+  normal_input:
     type: File
-  - id: tumor_input
+  tumor_input:
     type: File
-  - id: region
+  region:
     type: File
-  - id: reference
+  reference:
     type: File
-  - id: min_MQ
+  min_MQ:
     type: int
     default: 1
 
 outputs:
-  - id: normal_chunk
+  normal_chunk:
     type: File
     outputSource: split/normal_chunk
-  - id: tumor_chunk
+  tumor_chunk:
     type: File
     outputSource: split/tumor_chunk
-  - id: chunk_mpileup
+  chunk_mpileup:
     type: File
     outputSource: mpileup_pair/output_file
 
 steps:
-  - id: split
+  split:
     run: samtools_split_workflow.cwl
     in:
-      - id: normal_input
-        source: normal_input
-      - id: tumor_input
-        source: tumor_input
-      - id: region
-        source: region
-    out:
-      - id: normal_chunk
-      - id: tumor_chunk
+      normal_input: normal_input
+      tumor_input: tumor_input
+      region: region
+    out: [normal_chunk, tumor_chunk]
 
-  - id: mpileup_pair
+  mpileup_pair:
     run: ../tools/samtools_mpileup.cwl
     in:
-      - id: ref
-        source: reference
-      - id: region
-        source: region
-      - id: normal_bam
-        source: split/normal_chunk
-      - id: tumor_bam
-        source: split/tumor_chunk
-      - id: min_MQ
-        source: min_MQ
-    out:
-      - id: output_file
+      ref: reference
+      region: region
+      normal_bam: split/normal_chunk
+      tumor_bam: split/tumor_chunk
+      min_MQ: min_MQ
+    out: [output_file]

@@ -15,7 +15,7 @@ requirements:
 class: CommandLineTool
 
 inputs:
-  - id: java_opts
+  java_opts:
     type: string
     default: '3G'
     doc: |
@@ -25,7 +25,7 @@ inputs:
       prefix: '-Xmx'
       separate: false
 
-  - id: input_vcf
+  input_vcf:
     type:
       type: array
       items: File
@@ -36,7 +36,7 @@ inputs:
     inputBinding:
       position: 6
 
-  - id: output_filename
+  output_filename:
     type: string
     doc: output filename of file
     inputBinding:
@@ -44,7 +44,7 @@ inputs:
       prefix: 'O='
       separate: false
 
-  - id: ref_dict
+  ref_dict:
     type: File
     doc: reference sequence dictionary file
     inputBinding:

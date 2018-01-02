@@ -8,56 +8,46 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: StepInputExpressionRequirement
   - class: MultipleInputFeatureRequirement
-  
+
 inputs:
-  - id: normal_input
+  normal_input:
     type: File
-  - id: tumor_input
+  tumor_input:
     type: File
-  - id: region
+  region:
     type: File
 
 outputs:
-  - id: normal_chunk
+  normal_chunk:
     type: File
     outputSource: index_normal/bam_with_index
-  - id: tumor_chunk
+  tumor_chunk:
     type: File
     outputSource: index_tumor/bam_with_index
 
 steps:
-  - id: split_normal
+  split_normal:
     run: ../tools/samtools_split.cwl
     in:
-      - id: input_bam_path
-        source: normal_input
-      - id: region
-        source: region
-    out:
-      - id: output_file
+      input_bam_path: normal_input
+      region: region
+    out: [output_file]
 
-  - id: index_normal
+  index_normal:
     run: ../tools/samtools_index.cwl
     in:
-      - id: input_bam_path
-        source: split_normal/output_file
-    out:
-      - id: bam_with_index
+      input_bam_path: split_normal/output_file
+    out: [bam_with_index]
 
-  - id: split_tumor
+  split_tumor:
     run: ../tools/samtools_split.cwl
     in:
-      - id: input_bam_path
-        source: tumor_input
-      - id: region
-        source: region
-    out:
-      - id: output_file
+      input_bam_path: tumor_input
+      region: region
+    out: [output_file]
 
-  - id: index_tumor
+  index_tumor:
     run: ../tools/samtools_index.cwl
     in:
-      - id: input_bam_path
-        source: split_tumor/output_file
-    out:
-      - id: bam_with_index
+      input_bam_path: split_tumor/output_file
+    out: [bam_with_index]

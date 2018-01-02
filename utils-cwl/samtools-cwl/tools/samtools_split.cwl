@@ -9,23 +9,23 @@ requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/samtools:1.1
-  
+
 inputs:
-  - id: input_bam_path
+  input_bam_path:
     type: File
     inputBinding:
       position: 2
     secondaryFiles:
       - '.bai'
 
-  - id: region
+  region:
     type: File
     inputBinding:
       loadContents: true
       valueFrom: $(null)
 
 outputs:
-  - id: output_file
+  output_file:
     type: File
     outputBinding:
       glob: $(inputs.region.contents.replace(/\n/g, '').replace(/\t/g, '_'))_$(inputs.input_bam_path.basename)

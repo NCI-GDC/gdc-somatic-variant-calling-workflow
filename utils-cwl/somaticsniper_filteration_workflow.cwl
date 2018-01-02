@@ -8,36 +8,31 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: StepInputExpressionRequirement
   - class: MultipleInputFeatureRequirement
-  
+
 inputs:
-  - id: vcf
+  vcf:
     type: File
-  - id: pileup
+  pileup:
     type: File
 
 outputs:
-  - id: POST_LOH_FILTER
+  POST_LOH_FILTER:
     type: File
     outputSource: loh_filter/output
-  - id: POST_HC_FILTER
+  POST_HC_FILTER:
     type: File
     outputSource: highconfidence_filter/output
 
 steps:
-  - id: loh_filter
+  loh_filter:
     run: ../submodules/somaticsniper-cwl/tools/loh_filter.cwl
     in:
-      - id: vcf
-        source: vcf
-      - id: pileup
-        source: pileup
-    out:
-      - id: output
+      vcf: vcf
+      pileup: pileup
+    out: [output]
 
-  - id: highconfidence_filter
+  highconfidence_filter:
     run: ../submodules/somaticsniper-cwl/tools/highconfidence_filter.cwl
     in:
-      - id: vcf
-        source: loh_filter/output
-    out:
-      - id: output
+      vcf: loh_filter/output
+    out: [output]

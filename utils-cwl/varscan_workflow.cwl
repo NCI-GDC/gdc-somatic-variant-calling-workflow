@@ -17,153 +17,123 @@ requirements:
 class: Workflow
 
 inputs:
-  - id: java_opts
+  java_opts:
     doc: Java option flags for all the java cmd
     type: string
     default: '3G'
-  - id: tn_pair_pileup
+  tn_pair_pileup:
     doc: samtools mpileup files from t/n pair
     type: File
-  - id: min_coverage
+  min_coverage:
     doc: Minimum coverage in normal and tumor to call variant (8)
     type: int
     default: 8
-  - id: min_cov_normal
+  min_cov_normal:
     doc: Minimum coverage in normal to call somatic (8)
     type: int
     default: 8
-  - id: min_cov_tumor
+  min_cov_tumor:
     doc: Minimum coverage in tumor to call somatic (6)
     type: int
     default: 6
-  - id: min_var_freq
+  min_var_freq:
     doc: Minimum variant frequency to call a heterozygote (0.10)
     type: float
     default: 0.10
-  - id: min_freq_for_hom
+  min_freq_for_hom:
     doc: Minimum frequency to call homozygote (0.75)
     type: float
     default: 0.75
-  - id: normal_purity
+  normal_purity:
     doc: Estimated purity (non-tumor content) of normal sample (1.00)
     type: float
     default: 1.00
-  - id: tumor_purity
+  tumor_purity:
     doc: Estimated purity (tumor content) of tumor sample (1.00)
     type: float
     default: 1.00
-  - id: vs_p_value
+  vs_p_value:
     doc: P-value threshold to call a heterozygote (0.99) when running varscan somatic
     type: float
     default: 0.99
-  - id: somatic_p_value
+  somatic_p_value:
     doc: P-value threshold to call a somatic site (0.05)
     type: float
     default: 0.05
-  - id: strand_filter
+  strand_filter:
     doc: If set to 1, removes variants with >90% strand bias (0)
     type: int
     default: 0
-  - id: validation
+  validation:
     doc: If set, outputs all compared positions even if non-variant
     type: boolean
     default: false
-  - id: output_vcf
+  output_vcf:
     doc: If set to 1, output VCF instead of VarScan native format
     type: int
     default: 1
-  - id: min_tumor_freq
+  min_tumor_freq:
     doc: Minimun variant allele frequency in tumor [0.10]
     type: float
     default: 0.10
-  - id: max_normal_freq
+  max_normal_freq:
     doc: Maximum variant allele frequency in normal [0.05]
     type: float
     default: 0.05
-  - id: vps_p_value
+  vps_p_value:
     doc: P-value for high-confidence calling [0.07]
     type: float
     default: 0.07
-  - id: ref_dict
+  ref_dict:
     doc: reference sequence dictionary file
     type: File
 
 outputs:
-  - id: SNP_SOMATIC_HC
+  SNP_SOMATIC_HC:
     type: File
     outputSource: varscan_process_somatic_snp/SOMATIC_HC
-  - id: INDEL_SOMATIC_HC
+  INDEL_SOMATIC_HC:
     type: File
     outputSource: varscan_process_somatic_indel/SOMATIC_HC
 
 steps:
-  - id: varscan_somatic
+  varscan_somatic:
     run: ../submodules/varscan-cwl/tools/varscan_somatic.cwl
     in:
-      - id: java_opts
-        source: java_opts
-      - id: tn_pair_pileup
-        source: tn_pair_pileup
-      - id: min_coverage
-        source: min_coverage
-      - id: min_cov_normal
-        source: min_cov_normal
-      - id: min_cov_tumor
-        source: min_cov_tumor
-      - id: min_var_freq
-        source: min_var_freq
-      - id: min_freq_for_hom
-        source: min_freq_for_hom
-      - id: normal_purity
-        source: normal_purity
-      - id: tumor_purity
-        source: tumor_purity
-      - id: p_value
-        source: vs_p_value
-      - id: somatic_p_value
-        source: somatic_p_value
-      - id: strand_filter
-        source: strand_filter
-      - id: validation
-        source: validation
-      - id: output_vcf
-        source: output_vcf
-    out:
-      - id: snp_output
-      - id: indel_output
+      java_opts: java_opts
+      tn_pair_pileup: tn_pair_pileup
+      min_coverage: min_coverage
+      min_cov_normal: min_cov_normal
+      min_cov_tumor: min_cov_tumor
+      min_var_freq: min_var_freq
+      min_freq_for_hom: min_freq_for_hom
+      normal_purity: normal_purity
+      tumor_purity: tumor_purity
+      p_value: vs_p_value
+      somatic_p_value: somatic_p_value
+      strand_filter: strand_filter
+      validation: validation
+      output_vcf: output_vcf
+    out: [snp_output, indel_output]
 
-  - id: varscan_process_somatic_snp
+  varscan_process_somatic_snp:
     run: varscan_process_somatic_workflow.cwl
     in:
-      - id: java_opts
-        source: java_opts
-      - id: input_vcf
-        source: varscan_somatic/snp_output
-      - id: min_tumor_freq
-        source: min_tumor_freq
-      - id: max_normal_freq
-        source: max_normal_freq
-      - id: p_value
-        source: vps_p_value
-      - id: ref_dict
-        source: ref_dict
-    out:
-      - id: SOMATIC_HC
+      java_opts: java_opts
+      input_vcf: varscan_somatic/snp_output
+      min_tumor_freq: min_tumor_freq
+      max_normal_freq: max_normal_freq
+      p_value: vps_p_value
+      ref_dict: ref_dict
+    out: [SOMATIC_HC]
 
-  - id: varscan_process_somatic_indel
+  varscan_process_somatic_indel:
     run: varscan_process_somatic_workflow.cwl
     in:
-      - id: java_opts
-        source: java_opts
-      - id: input_vcf
-        source: varscan_somatic/indel_output
-      - id: min_tumor_freq
-        source: min_tumor_freq
-      - id: max_normal_freq
-        source: max_normal_freq
-      - id: p_value
-        source: vps_p_value
-      - id: ref_dict
-        source: ref_dict
-    out:
-      - id: SOMATIC_HC
+      java_opts: java_opts
+      input_vcf: varscan_somatic/indel_output
+      min_tumor_freq: min_tumor_freq
+      max_normal_freq: max_normal_freq
+      p_value: vps_p_value
+      ref_dict: ref_dict
+    out: [SOMATIC_HC]

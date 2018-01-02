@@ -14,16 +14,16 @@ requirements:
       - entry: $(inputs.input_bam_path)
         entryname: $(inputs.input_bam_path.basename)
         writable: True
-  
+
 inputs:
-  - id: input_bam_path
+  input_bam_path:
     type: File
     inputBinding:
       position: 1
       valueFrom: $(self.basename)
 
 outputs:
-  - id: bam_with_index
+  bam_with_index:
     type: File
     outputBinding:
       glob: $(inputs.input_bam_path.basename)

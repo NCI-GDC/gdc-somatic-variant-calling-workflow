@@ -18,40 +18,15 @@ requirements:
 
 inputs:
 
-###AWS_INPUTS###
-  aws_config_file:
+###BIOCLIENT_INPUTS###
+  config_file:
     type: File
-    doc: Shared aws config file.
-  aws_shared_credentials_file:
-    type: File
-    doc: Shared aws credential file.
-  normal_s3cfg_section:
+  tumor_download_handle:
     type: string
-    doc: Aws section for normal bam file. Should be in the aws config file.
-  normal_endpoint_url:
+  normal_download_handle:
     type: string
-    doc: Aws endpoint url for aws section of normal bam file.
-  normal_s3url:
+  upload_bucket:
     type: string
-    doc: Aws s3 url for normal bam file.
-  tumor_s3cfg_section:
-    type: string
-    doc: Aws section for tumor bam file. Should be in the aws config file.
-  tumor_endpoint_url:
-    type: string
-    doc: Aws endpoint url for aws section of tumor bam file.
-  tumor_s3url:
-    type: string
-    doc: Aws s3 url for tumor bam file.
-  output_s3cfg_section:
-    type: string
-    doc: Aws section for output file. Should be in the aws config file.
-  output_endpoint_url:
-    type: string
-    doc: Aws endpoint url for aws section of output file.
-  output_s3url:
-    type: string
-    doc: Aws s3 url for output file.
 
 ###GENERAL_INPUTS###
   job_id:
@@ -227,6 +202,30 @@ outputs:
   varscan2_vcf:
     type: File
     outputSource: varscan2_mergevcf/output_vcf_file
+  muse_upload:
+    type: File
+    outputSource: upload_muse/output
+  muse_index_upload:
+    type: File
+    outputSource: upload_muse_index/output
+  mutect2_upload:
+    type: File
+    outputSource: upload_mutect2/output
+  mutect2_index_upload:
+    type: File
+    outputSource: upload_mutect2_index/output
+  somaticsniper_upload:
+    type: File
+    outputSource: upload_somaticsniper/output
+  somaticsniper_index_upload:
+    type: File
+    outputSource: upload_somaticsniper_index/output
+  varscan2_upload:
+    type: File
+    outputSource: upload_varscan2/output
+  varscan2_index_upload:
+    type: File
+    outputSource: upload_varscan2_index/output
 
 steps:
 
@@ -234,14 +233,9 @@ steps:
   prepare_bam_input:
     run: utils-cwl/prepare_bam_input_workflow.cwl
     in:
-      aws_config_file: aws_config_file
-      aws_shared_credentials_file: aws_shared_credentials_file
-      normal_s3cfg_section: normal_s3cfg_section
-      normal_endpoint_url: normal_endpoint_url
-      normal_s3url: normal_s3url
-      tumor_s3cfg_section: tumor_s3cfg_section
-      tumor_endpoint_url: tumor_endpoint_url
-      tumor_s3url: tumor_s3url
+      config_file: config_file
+      tumor_download_handle: tumor_download_handle
+      normal_download_handle: normal_download_handle
     out: [normal_input, tumor_input]
 
   faidx_to_bed:
@@ -421,14 +415,98 @@ steps:
     out: [output_vcf_file]
 
 ###UPLOAD###
-  upload_outputs:
-    run: utils-cwl/aws/tools/aws_s3_put.cwl
-    scatter: local_file
+  upload_muse:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
-      aws_config_file: aws_config_file
-      aws_shared_credentials_file: aws_shared_credentials_file
-      s3cfg_section:  output_s3cfg_section
-      endpoint_url: output_endpoint_url
-      local_file: [sort_muse_vcf/sorted_vcf, sort_mutect2_vcf/sorted_vcf, sort_somaticsniper_vcf/sorted_vcf, varscan2_mergevcf/output_vcf_file]
-      s3url: output_s3url
+      config_file: config_file
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_id, sort_muse_vcf/sorted_vcf]
+        valueFrom: $(self[0])/$(self[1].basename)
+      local_file: sort_muse_vcf/sorted_vcf
+    out: [output]
+
+  upload_muse_index:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: config_file
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_id, sort_muse_vcf/sorted_vcf]
+        valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
+      local_file:
+        source: sort_muse_vcf/sorted_vcf
+        valueFrom: $(self.secondaryFiles[0])
+    out: [output]
+
+  upload_mutect2:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: config_file
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_id, sort_mutect2_vcf/sorted_vcf]
+        valueFrom: $(self[0])/$(self[1].basename)
+      local_file: sort_mutect2_vcf/sorted_vcf
+    out: [output]
+
+  upload_mutect2_index:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: config_file
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_id, sort_mutect2_vcf/sorted_vcf]
+        valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
+      local_file:
+        source: sort_mutect2_vcf/sorted_vcf
+        valueFrom: $(self.secondaryFiles[0])
+    out: [output]
+
+  upload_somaticsniper:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: config_file
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_id, sort_somaticsniper_vcf/sorted_vcf]
+        valueFrom: $(self[0])/$(self[1].basename)
+      local_file: sort_somaticsniper_vcf/sorted_vcf
+    out: [output]
+
+  upload_somaticsniper_index:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: config_file
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_id, sort_somaticsniper_vcf/sorted_vcf]
+        valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
+      local_file:
+        source: sort_somaticsniper_vcf/sorted_vcf
+        valueFrom: $(self.secondaryFiles[0])
+    out: [output]
+
+  upload_varscan2:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: config_file
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_id, varscan2_mergevcf/output_vcf_file]
+        valueFrom: $(self[0])/$(self[1].basename)
+      local_file: varscan2_mergevcf/output_vcf_file
+    out: [output]
+
+  upload_varscan2_index:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: config_file
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_id, varscan2_mergevcf/output_vcf_file]
+        valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
+      local_file:
+        source: varscan2_mergevcf/output_vcf_file
+        valueFrom: $(self.secondaryFiles[0])
     out: [output]

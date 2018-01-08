@@ -58,7 +58,9 @@ outputs:
     doc: Merged vcf
     outputBinding:
       glob: $(inputs.output_filename)
-
+    secondaryFiles:
+      - '.tbi'
+      
 baseCommand: ['java', '-d64', '-XX:+UseSerialGC']
 arguments:
   - valueFrom: '/usr/local/bin/picard.jar'

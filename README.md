@@ -3,7 +3,7 @@ GDC Somatic Variant Calling Workflow
 
 The main runner is `gdc-somatic-variant-calling.cwl`
 
-(#Note: the runner uses prestaged reference files, and build index for input bam. There is a draft `utils/download_all_reference.cwl` to download all the reference file, but not tested yet.)
+(#Note: the runner uses prestaged reference files, and builds index for input bam. There is a draft `utils/download_all_reference.cwl` to download all the reference file, but hasn't been tested yet.)
 
 The bioclient `config_file` example is:
 ```

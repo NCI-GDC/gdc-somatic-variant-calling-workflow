@@ -255,30 +255,30 @@ outputs:
   varscan2_vcf:
     type: File
     outputSource: varscan2_mergevcf/output_vcf_file
-  muse_upload:
-    type: File
-    outputSource: upload_muse/output
-  muse_index_upload:
-    type: File
-    outputSource: upload_muse_index/output
-  mutect2_upload:
-    type: File
-    outputSource: upload_mutect2/output
-  mutect2_index_upload:
-    type: File
-    outputSource: upload_mutect2_index/output
-  somaticsniper_upload:
-    type: File
-    outputSource: upload_somaticsniper/output
-  somaticsniper_index_upload:
-    type: File
-    outputSource: upload_somaticsniper_index/output
-  varscan2_upload:
-    type: File
-    outputSource: upload_varscan2/output
-  varscan2_index_upload:
-    type: File
-    outputSource: upload_varscan2_index/output
+  muse_uuid:
+    type: string
+    outputSource: uuid_muse/output
+  muse_index_uuid:
+    type: string
+    outputSource: uuid_muse_index/output
+  mutect2_uuid:
+    type: string
+    outputSource: uuid_mutect2/output
+  mutect2_index_uuid:
+    type: string
+    outputSource: uuid_mutect2_index/output
+  somaticsniper_uuid:
+    type: string
+    outputSource: uuid_somaticsniper/output
+  somaticsniper_index_uuid:
+    type: string
+    outputSource: uuid_somaticsniper_index/output
+  varscan2_uuid:
+    type: string
+    outputSource: uuid_varscan2/output
+  varscan2_index_uuid:
+    type: string
+    outputSource: uuid_varscan2_index/output
 
 steps:
 
@@ -610,4 +610,69 @@ steps:
       local_file:
         source: varscan2_mergevcf/output_vcf_file
         valueFrom: $(self.secondaryFiles[0])
+    out: [output]
+
+###EXTRACT_UUID###
+  uuid_muse:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_muse/output
+      key:
+        valueFrom: 'did'
+    out: [output]
+
+  uuid_muse_index:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_muse_index/output
+      key:
+        valueFrom: 'did'
+    out: [output]
+
+  uuid_mutect2:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_mutect2/output
+      key:
+        valueFrom: 'did'
+    out: [output]
+
+  uuid_mutect2_index:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_mutect2_index/output
+      key:
+        valueFrom: 'did'
+    out: [output]
+
+  uuid_somaticsniper:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_somaticsniper/output
+      key:
+        valueFrom: 'did'
+    out: [output]
+
+  uuid_somaticsniper_index:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_somaticsniper_index/output
+      key:
+        valueFrom: 'did'
+    out: [output]
+
+  uuid_varscan2:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_varscan2/output
+      key:
+        valueFrom: 'did'
+    out: [output]
+
+  uuid_varscan2_index:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_varscan2_index/output
+      key:
+        valueFrom: 'did'
     out: [output]

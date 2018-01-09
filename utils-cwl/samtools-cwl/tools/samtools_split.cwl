@@ -16,7 +16,7 @@ inputs:
     inputBinding:
       position: 2
     secondaryFiles:
-      - '.bai'
+      - '^.bai'
 
   region:
     type: File

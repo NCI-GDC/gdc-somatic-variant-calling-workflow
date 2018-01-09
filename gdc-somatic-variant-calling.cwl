@@ -65,6 +65,59 @@ inputs:
     type: File
     doc: Cosmic reference file. GDC default is COSMICv75. Must be bgzip'd and tabix'd.
 
+###GATK_INPUTS###
+  gatk_logging_level:
+    default: INFO
+    type: string
+  rtc_maxIntervalSize:
+    type: int
+    default: 500
+  rtc_minReadsAtLocus:
+    type: int
+    default: 4
+  rtc_mismatchFraction:
+    type: double
+    default: 0.0
+  rtc_num_threads:
+    type: int
+    default: 1
+  rtc_windowSize:
+    type: int
+    default: 10
+  ir_consensusDeterminationModel:
+    type: string
+    default: USE_READS
+  ir_entropyThreshold:
+    type: double
+    default: 0.15
+  ir_LODThresholdForCleaning:
+    type: double
+    default: 5.0
+  ir_maxConsensuses:
+    type: int
+    default: 30
+  ir_maxIsizeForMovement:
+    type: int
+    default: 3000
+  ir_maxPositionalMoveAllowed:
+    type: int
+    default: 200
+  ir_maxReadsForConsensuses:
+    type: int
+    default: 120
+  ir_maxReadsForRealignment:
+    type: int
+    default: 20000
+  ir_maxReadsInMemory:
+    type: int
+    default: 150000
+  ir_noOriginalAlignmentTags:
+    type: boolean
+    default: true
+  ir_nWayOut:
+    type: string
+    default: "_realn.bam"
+
 ###MUSE_INPUTS###
   exp_strat:
     type: string
@@ -246,12 +299,60 @@ steps:
       usedecoy: usedecoy
     out: [output_bed]
 
+  realignertargetcreator:
+    run: utils-cwl/gatk/tools/gatk_realignertargetcreator.cwl
+    in:
+      input_file: [prepare_bam_input/normal_input, prepare_bam_input/tumor_input]
+      known: dbsnp
+      log_to_file:
+        source: job_id
+        valueFrom: $(self + '.realignertargetcreator.log')
+      logging_level: gatk_logging_level
+      maxIntervalSize: rtc_maxIntervalSize
+      minReadsAtLocus: rtc_minReadsAtLocus
+      mismatchFraction: rtc_mismatchFraction
+      output_name:
+        source: job_id
+        valueFrom: $(self + '.intervals')
+      num_threads: rtc_num_threads
+      windowSize: rtc_windowSize
+      reference_sequence: reference
+    out: [output_intervals, output_log]
+
+  indelrealigner:
+    run: utils-cwl/gatk/tools/gatk_indelrealigner.cwl
+    in:
+      consensusDeterminationModel: ir_consensusDeterminationModel
+      entropyThreshold: ir_entropyThreshold
+      input_file: [prepare_bam_input/normal_input, prepare_bam_input/tumor_input]
+      knownAlleles: dbsnp
+      log_to_file:
+        source: job_id
+        valueFrom: $(self + '.indelrealigner.log')
+      logging_level: gatk_logging_level
+      LODThresholdForCleaning: ir_LODThresholdForCleaning
+      maxConsensuses: ir_maxConsensuses
+      maxIsizeForMovement: ir_maxIsizeForMovement
+      maxPositionalMoveAllowed: ir_maxPositionalMoveAllowed
+      maxReadsForConsensuses: ir_maxReadsForConsensuses
+      maxReadsForRealignment: ir_maxReadsForRealignment
+      maxReadsInMemory: ir_maxReadsInMemory
+      noOriginalAlignmentTags: ir_noOriginalAlignmentTags
+      nWayOut: ir_nWayOut
+      reference_sequence: reference
+      targetIntervals: realignertargetcreator/output_intervals
+    out: [output_bam, output_log]
+
   samtools_workflow:
     run: utils-cwl/samtools-cwl/workflows/samtools_workflow.cwl
     scatter: region
     in:
-      normal_input: prepare_bam_input/normal_input
-      tumor_input: prepare_bam_input/tumor_input
+      normal_input:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[1])
+      tumor_input:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[0])
       region: faidx_to_bed/output_bed
       reference: reference
       min_MQ: map_q

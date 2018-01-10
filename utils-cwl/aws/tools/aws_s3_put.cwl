@@ -44,11 +44,7 @@ inputs:
     inputBinding:
       position: 5
 
-outputs:
-  output:
-    type: File
-    outputBinding:
-      glob: "output"
+outputs: []
 
 baseCommand: ['aws', '--no-verify-ssl']
 
@@ -58,5 +54,3 @@ arguments:
 
   - valueFrom: cp
     position: 3
-
-stdout: 'output'

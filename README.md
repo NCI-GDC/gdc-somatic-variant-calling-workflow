@@ -3,8 +3,6 @@ GDC Somatic Variant Calling Workflow
 
 The main runner is `gdc-somatic-variant-calling.cwl`
 
-(#Note: the runner uses prestaged reference files, and builds index for input bam. There is a draft `utils/download_all_reference.cwl` to download all the reference file, but hasn't been tested yet.)
-
 The bioclient `config_file` example is:
 ```
 {
@@ -37,37 +35,24 @@ The bioclient `config_file` example is:
 The example for input json is:
 ```
 {
-    "config_file": {
-        "path": "/mnt/benchmark/config.json",
+    "bioclient_config": {
+        "path": "/path/to/config.json",
         "class": "File"
     },
-    "reference": {
-        "path": "/mnt/reference/GRCh38.d1.vd1.fa",
-        "class": "File"
-    },
-    "tumor_download_handle": "c5bcceee-1c3c-4349-b4a8-cf056531ab19",
-    "pon": {
-        "path": "/mnt/reference/MuTect2.PON.5210.vcf.gz",
-        "class": "File"
-    },
-    "dbsnp": {
-        "path": "/mnt/reference/dbsnp_144.hg38.vcf.gz",
-        "class": "File"
-    },
-    "normal_download_handle": "30f4bf30-ab75-4d6a-9861-aa55b01b579d",
-    "reference_dict": {
-      "path": "/mnt/reference/GRCh38.d1.vd1.dict",
-      "class": "File"
-  },
-  "job_id": "XXX",
-  "reference_faidx": {
-      "path": "/mnt/reference/GRCh38.d1.vd1.fa.fai",
-      "class": "File"
-  },
-  "cosmic": {
-      "path": "/mnt/reference/CosmicCombined.srt.vcf.gz",
-      "class": "File"
-  },
-  "upload_bucket": "s3://cleversafe.service.consul/bioinformatics_scratch"
+    "tumor_gdc_id": "XXX",
+    "tumor_index_gdc_id": "XXX",
+    "normal_gdc_id": "XXX",
+    "normal_index_gdc_id": "XXX",
+    "reference_gdc_id": "XXX",
+    "reference_faidx_gdc_id": "XXX",
+    "reference_dict_gdc_id": "XXX",
+    "known_snp_gdc_id": "XXX",
+    "known_snp_index_gdc_id": "XXX",
+    "panel_of_normal_gdc_id": "XXX",
+    "panel_of_normal_index_gdc_id": "XXX",
+    "cosmic_gdc_id": "XXX",
+    "cosmic_index_gdc_id": "XXX",
+    "upload_bucket": "XXX",
+    "job_uuid": "XXX"
 }      
 ```

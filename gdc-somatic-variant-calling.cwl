@@ -19,17 +19,45 @@ requirements:
 inputs:
 
 ###BIOCLIENT_INPUTS###
-  config_file:
+  bioclient_config:
     type: File
-  tumor_download_handle:
+  tumor_gdc_id:
     type: string
-  normal_download_handle:
+  tumor_index_gdc_id:
+    type: string
+  normal_gdc_id:
+    type: string
+  normal_index_gdc_id:
+    type: string
+  reference_gdc_id:
+    type: string
+    doc: Human genome reference. GDC default is GRCh38.
+  reference_faidx_gdc_id:
+    type: string
+    doc: Human genome reference faidx file.
+  reference_dict_gdc_id:
+    type: string
+    doc: Human genome reference dictionary file.
+  known_snp_gdc_id:
+    type: string
+    doc: dbSNP reference file. GDC default is dbSNP build-144.
+  known_snp_index_gdc_id:
+    type: string
+  panel_of_normal_gdc_id:
+    type: string
+    doc: Panel of normal reference file.
+  panel_of_normal_index_gdc_id:
+    type: string
+  cosmic_gdc_id:
+    type: string
+    doc: Cosmic reference file. GDC default is COSMICv75.
+  cosmic_index_gdc_id:
     type: string
   upload_bucket:
     type: string
 
 ###GENERAL_INPUTS###
-  job_id:
+  job_uuid:
     type: string
     doc: Job id. Served as a prefix for most VCF outputs.
   java_opts:
@@ -44,26 +72,6 @@ inputs:
     type: boolean
     default: false
     doc: If specified, it will include all the decoy sequences in the faidx. GDC default is false.
-
-###REFERENCE_FILES###
-  reference:
-    type: File
-    doc: Human genome reference. GDC default is GRCh38.
-  reference_faidx:
-    type: File
-    doc: Human genome reference faidx file.
-  reference_dict:
-    type: File
-    doc: Human genome reference dictionary file.
-  dbsnp:
-    type: File
-    doc: dbSNP reference file. GDC default is dbSNP build-144. Must be bgzip'd and tabix'd.
-  pon:
-    type: File
-    doc: Panel of normal reference file. Must be bgzip'd and tabix'd.
-  cosmic:
-    type: File
-    doc: Cosmic reference file. GDC default is COSMICv75. Must be bgzip'd and tabix'd.
 
 ###GATK_INPUTS###
   gatk_logging_level:
@@ -283,18 +291,31 @@ outputs:
 steps:
 
 ###PREPARATION###
-  prepare_bam_input:
-    run: utils-cwl/prepare_bam_input_workflow.cwl
+  preparation:
+    run: utils-cwl/subworkflows/preparation_workflow.cwl
     in:
-      config_file: config_file
-      tumor_download_handle: tumor_download_handle
-      normal_download_handle: normal_download_handle
-    out: [normal_input, tumor_input]
+      bioclient_config: bioclient_config
+      tumor_gdc_id: tumor_gdc_id
+      tumor_index_gdc_id: tumor_index_gdc_id
+      normal_gdc_id: normal_gdc_id
+      normal_index_gdc_id: normal_index_gdc_id
+      reference_fa_gdc_id: reference_gdc_id
+      reference_fai_gdc_id: reference_faidx_gdc_id
+      reference_dict_gdc_id: reference_dict_gdc_id
+      known_snp_gdc_id: known_snp_gdc_id
+      known_snp_index_gdc_id: known_snp_index_gdc_id
+      panel_of_normal_gdc_id: panel_of_normal_gdc_id
+      panel_of_normal_index_gdc_id: panel_of_normal_index_gdc_id
+      cosmic_gdc_id: cosmic_gdc_id
+      cosmic_index_gdc_id: cosmic_index_gdc_id
+    out: [normal_with_index, tumor_with_index, reference_with_index, known_snp_with_index, panel_of_normal_with_index, cosmic_with_index]
 
   faidx_to_bed:
     run: utils-cwl/faidxtobed/tools/faidx_to_bed.cwl
     in:
-      ref_fai: reference_faidx
+      ref_fai:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[0])
       blocksize: blocksize
       usedecoy: usedecoy
     out: [output_bed]
@@ -302,21 +323,21 @@ steps:
   realignertargetcreator:
     run: utils-cwl/gatk/tools/gatk_realignertargetcreator.cwl
     in:
-      input_file: [prepare_bam_input/normal_input, prepare_bam_input/tumor_input]
-      known: dbsnp
+      input_file: [preparation/normal_with_index, preparation/tumor_with_index]
+      known: preparation/known_snp_with_index
       log_to_file:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.realignertargetcreator.log')
       logging_level: gatk_logging_level
       maxIntervalSize: rtc_maxIntervalSize
       minReadsAtLocus: rtc_minReadsAtLocus
       mismatchFraction: rtc_mismatchFraction
       output_name:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.intervals')
       num_threads: rtc_num_threads
       windowSize: rtc_windowSize
-      reference_sequence: reference
+      reference_sequence: preparation/reference_with_index
     out: [output_intervals, output_log]
 
   indelrealigner:
@@ -324,10 +345,10 @@ steps:
     in:
       consensusDeterminationModel: ir_consensusDeterminationModel
       entropyThreshold: ir_entropyThreshold
-      input_file: [prepare_bam_input/normal_input, prepare_bam_input/tumor_input]
-      knownAlleles: dbsnp
+      input_file: [preparation/normal_with_index, preparation/tumor_with_index]
+      knownAlleles: preparation/known_snp_with_index
       log_to_file:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.indelrealigner.log')
       logging_level: gatk_logging_level
       LODThresholdForCleaning: ir_LODThresholdForCleaning
@@ -339,7 +360,7 @@ steps:
       maxReadsInMemory: ir_maxReadsInMemory
       noOriginalAlignmentTags: ir_noOriginalAlignmentTags
       nWayOut: ir_nWayOut
-      reference_sequence: reference
+      reference_sequence: preparation/reference_with_index
       targetIntervals: realignertargetcreator/output_intervals
     out: [output_bam, output_log]
 
@@ -354,7 +375,7 @@ steps:
         source: indelrealigner/output_bam
         valueFrom: $(self[0])
       region: faidx_to_bed/output_bed
-      reference: reference
+      reference: preparation/reference_with_index
       min_MQ: map_q
     out: [normal_chunk, tumor_chunk, chunk_mpileup]
 
@@ -364,7 +385,7 @@ steps:
     scatter: [region, tumor_bam, normal_bam]
     scatterMethod: dotproduct
     in:
-      ref: reference
+      ref: preparation/reference_with_index
       region: faidx_to_bed/output_bed
       tumor_bam: samtools_workflow/tumor_chunk
       normal_bam: samtools_workflow/normal_chunk
@@ -374,26 +395,28 @@ steps:
     run: submodules/muse-cwl/tools/awk_merge.cwl
     in:
       call_outputs: muse_call/output_file
-      output_base: job_id
+      output_base: job_uuid
     out: [merged_file]
 
   muse_sump:
     run: submodules/muse-cwl/tools/muse_sump.cwl
     in:
-      dbsnp: dbsnp
+      dbsnp: preparation/known_snp_with_index
       call_output: awk_merge_muse/merged_file
       exp_strat: exp_strat
       output_base:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.muse.vcf')
     out: [MUSE_OUTPUT]
 
   sort_muse_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
-      ref_dict: reference_dict
+      ref_dict:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.muse.vcf.gz')
       input_vcf: muse_sump/MUSE_OUTPUT
     out: [sorted_vcf]
@@ -405,13 +428,13 @@ steps:
     scatterMethod: dotproduct
     in:
       java_heap: java_opts
-      ref: reference
+      ref: preparation/reference_with_index
       region: faidx_to_bed/output_bed
       tumor_bam: samtools_workflow/tumor_chunk
       normal_bam: samtools_workflow/normal_chunk
-      pon: pon
-      cosmic: cosmic
-      dbsnp: dbsnp
+      pon: preparation/panel_of_normal_with_index
+      cosmic: preparation/cosmic_with_index
+      dbsnp: preparation/known_snp_with_index
       cont: cont
       duscb: duscb
     out: [MUTECT2_OUTPUT]
@@ -419,23 +442,25 @@ steps:
   sort_mutect2_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
-      ref_dict: reference_dict
+      ref_dict:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.mutect2.vcf.gz')
       input_vcf: mutect2/MUTECT2_OUTPUT
     out: [sorted_vcf]
 
 ###SOMATICSNIPER_PIPELINE###
   somaticsniper:
-    run: utils-cwl/somaticsniper_workflow.cwl
+    run: utils-cwl/subworkflows/somaticsniper_workflow.cwl
     scatter: [normal_input, tumor_input, mpileup]
     scatterMethod: dotproduct
     in:
       normal_input: samtools_workflow/normal_chunk
       tumor_input: samtools_workflow/tumor_chunk
       mpileup: samtools_workflow/chunk_mpileup
-      reference: reference
+      reference: preparation/reference_with_index
       map_q: map_q
       base_q: base_q
       loh: loh
@@ -452,21 +477,25 @@ steps:
   sort_somaticsniper_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
-      ref_dict: reference_dict
+      ref_dict:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.somaticsniper.vcf.gz')
       input_vcf: somaticsniper/ANNOTATED_VCF
     out: [sorted_vcf]
 
 ###VARSCAN2_PIPELINE###
   varscan2:
-    run: utils-cwl/varscan_workflow.cwl
+    run: utils-cwl/subworkflows/varscan_workflow.cwl
     scatter: tn_pair_pileup
     in:
       java_opts: java_opts
       tn_pair_pileup: samtools_workflow/chunk_mpileup
-      ref_dict: reference_dict
+      ref_dict:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[1])
       min_coverage: min_coverage
       min_cov_normal: min_cov_normal
       min_cov_tumor: min_cov_tumor
@@ -487,9 +516,11 @@ steps:
   sort_snp_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
-      ref_dict: reference_dict
+      ref_dict:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.snp.varscan2.vcf.gz')
       input_vcf: varscan2/SNP_SOMATIC_HC
     out: [sorted_vcf]
@@ -497,9 +528,11 @@ steps:
   sort_indel_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
-      ref_dict: reference_dict
+      ref_dict:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.indel.varscan2.vcf.gz')
       input_vcf: varscan2/INDEL_SOMATIC_HC
     out: [sorted_vcf]
@@ -510,19 +543,21 @@ steps:
       java_opts: java_opts
       input_vcf: [sort_snp_vcf/sorted_vcf, sort_indel_vcf/sorted_vcf]
       output_filename:
-        source: job_id
+        source: job_uuid
         valueFrom: $(self + '.varscan2.vcf.gz')
-      ref_dict: reference_dict
+      ref_dict:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[1])
     out: [output_vcf_file]
 
 ###UPLOAD###
   upload_muse:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
-      config_file: config_file
+      config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_id, sort_muse_vcf/sorted_vcf]
+        source: [job_uuid, sort_muse_vcf/sorted_vcf]
         valueFrom: $(self[0])/$(self[1].basename)
       local_file: sort_muse_vcf/sorted_vcf
     out: [output]
@@ -530,10 +565,10 @@ steps:
   upload_muse_index:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
-      config_file: config_file
+      config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_id, sort_muse_vcf/sorted_vcf]
+        source: [job_uuid, sort_muse_vcf/sorted_vcf]
         valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
       local_file:
         source: sort_muse_vcf/sorted_vcf
@@ -543,10 +578,10 @@ steps:
   upload_mutect2:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
-      config_file: config_file
+      config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_id, sort_mutect2_vcf/sorted_vcf]
+        source: [job_uuid, sort_mutect2_vcf/sorted_vcf]
         valueFrom: $(self[0])/$(self[1].basename)
       local_file: sort_mutect2_vcf/sorted_vcf
     out: [output]
@@ -554,10 +589,10 @@ steps:
   upload_mutect2_index:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
-      config_file: config_file
+      config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_id, sort_mutect2_vcf/sorted_vcf]
+        source: [job_uuid, sort_mutect2_vcf/sorted_vcf]
         valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
       local_file:
         source: sort_mutect2_vcf/sorted_vcf
@@ -567,10 +602,10 @@ steps:
   upload_somaticsniper:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
-      config_file: config_file
+      config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_id, sort_somaticsniper_vcf/sorted_vcf]
+        source: [job_uuid, sort_somaticsniper_vcf/sorted_vcf]
         valueFrom: $(self[0])/$(self[1].basename)
       local_file: sort_somaticsniper_vcf/sorted_vcf
     out: [output]
@@ -578,10 +613,10 @@ steps:
   upload_somaticsniper_index:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
-      config_file: config_file
+      config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_id, sort_somaticsniper_vcf/sorted_vcf]
+        source: [job_uuid, sort_somaticsniper_vcf/sorted_vcf]
         valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
       local_file:
         source: sort_somaticsniper_vcf/sorted_vcf
@@ -591,10 +626,10 @@ steps:
   upload_varscan2:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
-      config_file: config_file
+      config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_id, varscan2_mergevcf/output_vcf_file]
+        source: [job_uuid, varscan2_mergevcf/output_vcf_file]
         valueFrom: $(self[0])/$(self[1].basename)
       local_file: varscan2_mergevcf/output_vcf_file
     out: [output]
@@ -602,10 +637,10 @@ steps:
   upload_varscan2_index:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
-      config_file: config_file
+      config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_id, varscan2_mergevcf/output_vcf_file]
+        source: [job_uuid, varscan2_mergevcf/output_vcf_file]
         valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
       local_file:
         source: varscan2_mergevcf/output_vcf_file

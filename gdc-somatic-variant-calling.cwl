@@ -38,6 +38,11 @@ inputs:
   reference_dict_gdc_id:
     type: string
     doc: Human genome reference dictionary file.
+  known_indel_gdc_id:
+    type: string
+    doc: INDEL reference file.
+  known_indel_index_gdc_id:
+    type: string
   known_snp_gdc_id:
     type: string
     doc: dbSNP reference file. GDC default is dbSNP build-144.
@@ -302,13 +307,15 @@ steps:
       reference_fa_gdc_id: reference_gdc_id
       reference_fai_gdc_id: reference_faidx_gdc_id
       reference_dict_gdc_id: reference_dict_gdc_id
+      known_indel_gdc_id: known_indel_gdc_id
+      known_indel_index_gdc_id: known_indel_index_gdc_id
       known_snp_gdc_id: known_snp_gdc_id
       known_snp_index_gdc_id: known_snp_index_gdc_id
       panel_of_normal_gdc_id: panel_of_normal_gdc_id
       panel_of_normal_index_gdc_id: panel_of_normal_index_gdc_id
       cosmic_gdc_id: cosmic_gdc_id
       cosmic_index_gdc_id: cosmic_index_gdc_id
-    out: [normal_with_index, tumor_with_index, reference_with_index, known_snp_with_index, panel_of_normal_with_index, cosmic_with_index]
+    out: [normal_with_index, tumor_with_index, reference_with_index, known_indel_with_index,known_snp_with_index, panel_of_normal_with_index, cosmic_with_index]
 
   faidx_to_bed:
     run: utils-cwl/faidxtobed/tools/faidx_to_bed.cwl
@@ -324,7 +331,7 @@ steps:
     run: utils-cwl/gatk/tools/gatk_realignertargetcreator.cwl
     in:
       input_file: [preparation/normal_with_index, preparation/tumor_with_index]
-      known: preparation/known_snp_with_index
+      known: preparation/known_indel_with_index
       log_to_file:
         source: job_uuid
         valueFrom: $(self + '.realignertargetcreator.log')
@@ -346,7 +353,7 @@ steps:
       consensusDeterminationModel: ir_consensusDeterminationModel
       entropyThreshold: ir_entropyThreshold
       input_file: [preparation/normal_with_index, preparation/tumor_with_index]
-      knownAlleles: preparation/known_snp_with_index
+      knownAlleles: preparation/known_indel_with_index
       log_to_file:
         source: job_uuid
         valueFrom: $(self + '.indelrealigner.log')

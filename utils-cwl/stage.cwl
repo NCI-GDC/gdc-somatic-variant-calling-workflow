@@ -25,6 +25,10 @@ inputs:
     type: File
   reference_dict:
     type: File
+  indel:
+    type: File
+  indel_index:
+    type: File
   dbsnp:
     type: File
   dbsnp_index:
@@ -76,6 +80,12 @@ outputs:
       glob: $(inputs.dbsnp.basename)
     secondaryFiles:
       - '.tbi'
+  indel_with_index:
+    type: File
+    outputBinding:
+      glob: $(inputs.indel.basename)
+    secondaryFiles:
+      - '.tbi'
 
 arguments:
   - valueFrom: |
@@ -84,7 +94,7 @@ arguments:
                          + inputs.dbsnp.path + " " + inputs.pon.path + " " + inputs.cosmic.path + " "
                          + inputs.normal_index.path + " " +  inputs.tumor_index.path + " " + inputs.reference_fai.path + " "
                          + inputs.dbsnp_index.path + " " + inputs.pon_index.path + " " + inputs.cosmic_index.path + " "
-                         + inputs.reference_dict.path + " .";
+                         + inputs.reference_dict.path + " " + inputs.indel.path + " " + inputs.indel_index.path +" .";
          return cmd
       }
     shellQuote: false

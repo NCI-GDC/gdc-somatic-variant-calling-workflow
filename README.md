@@ -46,6 +46,8 @@ The example for input json is:
     "reference_gdc_id": "XXX",
     "reference_faidx_gdc_id": "XXX",
     "reference_dict_gdc_id": "XXX",
+    "known_indel_gdc_id": "XXX",
+    "known_indel_index_gdc_id": "XXX",
     "known_snp_gdc_id": "XXX",
     "known_snp_index_gdc_id": "XXX",
     "panel_of_normal_gdc_id": "XXX",

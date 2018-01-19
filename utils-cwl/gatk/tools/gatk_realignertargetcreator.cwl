@@ -17,7 +17,7 @@ inputs:
       inputBinding:
         prefix: --input_file
     secondaryFiles:
-      - .bai
+      - ^.bai
 
   known:
     type: File

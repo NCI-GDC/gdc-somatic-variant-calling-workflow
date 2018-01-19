@@ -29,7 +29,7 @@ inputs:
       inputBinding:
         prefix: --input_file
     secondaryFiles:
-      - .bai
+      - ^.bai
 
   knownAlleles:
     type: File

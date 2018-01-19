@@ -4,6 +4,10 @@ cwlVersion: v1.0
 
 class: Workflow
 
+requirements:
+  - class: SubworkflowFeatureRequirement
+  - class: MultipleInputFeatureRequirement
+
 inputs:
   bioclient_config:
     type: File
@@ -168,7 +172,7 @@ steps:
     out: [output]
 
   stage:
-    run: ../stage.cwl
+    run: ./stage_workflow.cwl
     in:
       normal: normal_download/output
       normal_index: normal_index_download/output

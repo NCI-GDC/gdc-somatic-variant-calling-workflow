@@ -13,8 +13,6 @@ requirements:
   - class: SubworkflowFeatureRequirement
   - class: ScatterFeatureRequirement
   - class: MultipleInputFeatureRequirement
-  - class: ResourceRequirement
-    coresMax: 40
 
 inputs:
 
@@ -256,18 +254,6 @@ inputs:
     doc: Varscan2 parameter. GDC default is 0.07. P-value for high-confidence calling.
 
 outputs:
-  muse_vcf:
-    type: File
-    outputSource: sort_muse_vcf/sorted_vcf
-  mutect2_vcf:
-    type: File
-    outputSource: sort_mutect2_vcf/sorted_vcf
-  somaticsniper_vcf:
-    type: File
-    outputSource: sort_somaticsniper_vcf/sorted_vcf
-  varscan2_vcf:
-    type: File
-    outputSource: varscan2_mergevcf/output_vcf_file
   muse_uuid:
     type: string
     outputSource: uuid_muse/output

@@ -272,12 +272,12 @@ outputs:
   somaticsniper_index_uuid:
     type: string
     outputSource: uuid_somaticsniper_index/output
-  varscan2_uuid:
-    type: string
-    outputSource: uuid_varscan2/output
-  varscan2_index_uuid:
-    type: string
-    outputSource: uuid_varscan2_index/output
+  #varscan2_uuid:
+  #  type: string
+  #  outputSource: uuid_varscan2/output
+  #varscan2_index_uuid:
+  #  type: string
+  #  outputSource: uuid_varscan2_index/output
 
 steps:
 
@@ -480,68 +480,68 @@ steps:
     out: [sorted_vcf]
 
 ###VARSCAN2_PIPELINE###
-  varscan2:
-    run: utils-cwl/subworkflows/varscan_workflow.cwl
-    scatter: tn_pair_pileup
-    in:
-      java_opts: java_opts
-      tn_pair_pileup: samtools_workflow/chunk_mpileup
-      ref_dict:
-        source: preparation/reference_with_index
-        valueFrom: $(self.secondaryFiles[1])
-      min_coverage: min_coverage
-      min_cov_normal: min_cov_normal
-      min_cov_tumor: min_cov_tumor
-      min_var_freq: min_var_freq
-      min_freq_for_hom: min_freq_for_hom
-      normal_purity: normal_purity
-      tumor_purity: tumor_purity
-      vs_p_value: vs_p_value
-      somatic_p_value: somatic_p_value
-      strand_filter: strand_filter
-      validation: validation
-      output_vcf: output_vcf
-      min_tumor_freq: min_tumor_freq
-      max_normal_freq: max_normal_freq
-      vps_p_value: vps_p_value
-    out: [SNP_SOMATIC_HC, INDEL_SOMATIC_HC]
+  #varscan2:
+  #  run: utils-cwl/subworkflows/varscan_workflow.cwl
+  #  scatter: tn_pair_pileup
+  #  in:
+  #    java_opts: java_opts
+  #    tn_pair_pileup: samtools_workflow/chunk_mpileup
+  #    ref_dict:
+  #      source: preparation/reference_with_index
+  #      valueFrom: $(self.secondaryFiles[1])
+  #    min_coverage: min_coverage
+  #    min_cov_normal: min_cov_normal
+  #    min_cov_tumor: min_cov_tumor
+  #    min_var_freq: min_var_freq
+  #    min_freq_for_hom: min_freq_for_hom
+  #    normal_purity: normal_purity
+  #    tumor_purity: tumor_purity
+  #    vs_p_value: vs_p_value
+  #    somatic_p_value: somatic_p_value
+  #    strand_filter: strand_filter
+  #    validation: validation
+  #    output_vcf: output_vcf
+  #    min_tumor_freq: min_tumor_freq
+  #    max_normal_freq: max_normal_freq
+  #    vps_p_value: vps_p_value
+  #  out: [SNP_SOMATIC_HC, INDEL_SOMATIC_HC]
 
-  sort_snp_vcf:
-    run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
-    in:
-      ref_dict:
-        source: preparation/reference_with_index
-        valueFrom: $(self.secondaryFiles[1])
-      output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.snp.varscan2.vcf.gz')
-      input_vcf: varscan2/SNP_SOMATIC_HC
-    out: [sorted_vcf]
+  #sort_snp_vcf:
+  #  run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
+  #  in:
+  #    ref_dict:
+  #      source: preparation/reference_with_index
+  #      valueFrom: $(self.secondaryFiles[1])
+  #    output_vcf:
+  #      source: job_uuid
+  #      valueFrom: $(self + '.snp.varscan2.vcf.gz')
+  #    input_vcf: varscan2/SNP_SOMATIC_HC
+  #  out: [sorted_vcf]
 
-  sort_indel_vcf:
-    run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
-    in:
-      ref_dict:
-        source: preparation/reference_with_index
-        valueFrom: $(self.secondaryFiles[1])
-      output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.indel.varscan2.vcf.gz')
-      input_vcf: varscan2/INDEL_SOMATIC_HC
-    out: [sorted_vcf]
+  #sort_indel_vcf:
+  #  run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
+  #  in:
+  #    ref_dict:
+  #      source: preparation/reference_with_index
+  #      valueFrom: $(self.secondaryFiles[1])
+  #    output_vcf:
+  #      source: job_uuid
+  #      valueFrom: $(self + '.indel.varscan2.vcf.gz')
+  #    input_vcf: varscan2/INDEL_SOMATIC_HC
+  #  out: [sorted_vcf]
 
-  varscan2_mergevcf:
-    run: utils-cwl/picard-cwl/tools/picard_mergevcf.cwl
-    in:
-      java_opts: java_opts
-      input_vcf: [sort_snp_vcf/sorted_vcf, sort_indel_vcf/sorted_vcf]
-      output_filename:
-        source: job_uuid
-        valueFrom: $(self + '.varscan2.vcf.gz')
-      ref_dict:
-        source: preparation/reference_with_index
-        valueFrom: $(self.secondaryFiles[1])
-    out: [output_vcf_file]
+  #varscan2_mergevcf:
+  #  run: utils-cwl/picard-cwl/tools/picard_mergevcf.cwl
+  #  in:
+  #    java_opts: java_opts
+  #    input_vcf: [sort_snp_vcf/sorted_vcf, sort_indel_vcf/sorted_vcf]
+  #    output_filename:
+  #      source: job_uuid
+  #      valueFrom: $(self + '.varscan2.vcf.gz')
+  #    ref_dict:
+  #      source: preparation/reference_with_index
+  #      valueFrom: $(self.secondaryFiles[1])
+  #  out: [output_vcf_file]
 
 ###UPLOAD###
   #upload_muse:
@@ -616,29 +616,29 @@ steps:
         valueFrom: $(self.secondaryFiles[0])
     out: [output]
 
-  upload_varscan2:
-    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
-    in:
-      config_file: bioclient_config
-      upload_bucket: upload_bucket
-      upload_key:
-        source: [job_uuid, varscan2_mergevcf/output_vcf_file]
-        valueFrom: $(self[0])/$(self[1].basename)
-      local_file: varscan2_mergevcf/output_vcf_file
-    out: [output]
+  #upload_varscan2:
+  #  run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+  #  in:
+  #    config_file: bioclient_config
+  #    upload_bucket: upload_bucket
+  #    upload_key:
+  #      source: [job_uuid, varscan2_mergevcf/output_vcf_file]
+  #      valueFrom: $(self[0])/$(self[1].basename)
+  #    local_file: varscan2_mergevcf/output_vcf_file
+  #  out: [output]
 
-  upload_varscan2_index:
-    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
-    in:
-      config_file: bioclient_config
-      upload_bucket: upload_bucket
-      upload_key:
-        source: [job_uuid, varscan2_mergevcf/output_vcf_file]
-        valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
-      local_file:
-        source: varscan2_mergevcf/output_vcf_file
-        valueFrom: $(self.secondaryFiles[0])
-    out: [output]
+  #upload_varscan2_index:
+  #  run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+  #  in:
+  #    config_file: bioclient_config
+  #    upload_bucket: upload_bucket
+  #    upload_key:
+  #      source: [job_uuid, varscan2_mergevcf/output_vcf_file]
+  #      valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
+  #    local_file:
+  #      source: varscan2_mergevcf/output_vcf_file
+  #      valueFrom: $(self.secondaryFiles[0])
+  #  out: [output]
 
 ###EXTRACT_UUID###
   #uuid_muse:
@@ -689,18 +689,18 @@ steps:
         valueFrom: 'did'
     out: [output]
 
-  uuid_varscan2:
-    run: utils-cwl/emit_json_value.cwl
-    in:
-      input: upload_varscan2/output
-      key:
-        valueFrom: 'did'
-    out: [output]
+  #uuid_varscan2:
+  #  run: utils-cwl/emit_json_value.cwl
+  #  in:
+  #    input: upload_varscan2/output
+  #    key:
+  #      valueFrom: 'did'
+  #  out: [output]
 
-  uuid_varscan2_index:
-    run: utils-cwl/emit_json_value.cwl
-    in:
-      input: upload_varscan2_index/output
-      key:
-        valueFrom: 'did'
-    out: [output]
+  #uuid_varscan2_index:
+  #  run: utils-cwl/emit_json_value.cwl
+  #  in:
+  #    input: upload_varscan2_index/output
+  #    key:
+  #      valueFrom: 'did'
+  #  out: [output]

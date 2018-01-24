@@ -80,6 +80,11 @@ inputs:
       - ^.dict
       - .fai
 
+  intervals:
+    type: File?
+    inputBinding:
+      prefix: -L
+
 outputs:
   output_intervals:
     type: File

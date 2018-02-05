@@ -254,12 +254,12 @@ inputs:
     doc: Varscan2 parameter. GDC default is 0.07. P-value for high-confidence calling.
 
 outputs:
-  #muse_uuid:
-  #  type: string
-  #  outputSource: uuid_muse/output
-  #muse_index_uuid:
-  #  type: string
-  #  outputSource: uuid_muse_index/output
+  muse_uuid:
+    type: string
+    outputSource: uuid_muse/output
+  muse_index_uuid:
+    type: string
+    outputSource: uuid_muse_index/output
   mutect2_uuid:
     type: string
     outputSource: uuid_mutect2/output
@@ -373,46 +373,48 @@ steps:
     out: [normal_chunk, tumor_chunk, chunk_mpileup]
 
 ###MUSE_PIPELINE###
-  #muse_call:
-  #  run: submodules/muse-cwl/tools/muse_call.cwl
-  #  scatter: [region, tumor_bam, normal_bam]
-  #  scatterMethod: dotproduct
-  #  in:
-  #    ref: preparation/reference_with_index
-  #    region: faidx_to_bed/output_bed
-  #    tumor_bam: samtools_workflow/tumor_chunk
-  #    normal_bam: samtools_workflow/normal_chunk
-  #  out: [output_file]
+  muse_call:
+    run: submodules/muse-cwl/tools/muse_call.cwl
+    scatter: [region, tumor_bam, normal_bam]
+    scatterMethod: dotproduct
+    in:
+      ref: preparation/reference_with_index
+      region: faidx_to_bed/output_bed
+      tumor_bam: samtools_workflow/tumor_chunk
+      normal_bam: samtools_workflow/normal_chunk
+    out: [output_file]
 
-  #awk_merge_muse:
-  #  run: submodules/muse-cwl/tools/awk_merge.cwl
-  #  in:
-  #    call_outputs: muse_call/output_file
-  #    output_base: job_uuid
-  #  out: [merged_file]
+  merge_muse:
+    run: submodules/muse-cwl/tools/MergeMuSE.cwl
+    in:
+      call_outputs: muse_call/output_file
+      merged_name:
+        source: job_uuid
+        valueFrom: $(self + '.MuSE.txt')
+    out: [merged_file]
 
-  #muse_sump:
-  #  run: submodules/muse-cwl/tools/muse_sump.cwl
-  #  in:
-  #    dbsnp: preparation/known_snp_with_index
-  #    call_output: awk_merge_muse/merged_file
-  #    exp_strat: exp_strat
-  #    output_base:
-  #      source: job_uuid
-  #      valueFrom: $(self + '.muse.vcf')
-  #  out: [MUSE_OUTPUT]
+  muse_sump:
+    run: submodules/muse-cwl/tools/muse_sump.cwl
+    in:
+      dbsnp: preparation/known_snp_with_index
+      call_output: merge_muse/merged_file
+      exp_strat: exp_strat
+      output_base:
+        source: job_uuid
+        valueFrom: $(self + '.muse.vcf')
+    out: [MUSE_OUTPUT]
 
-  #sort_muse_vcf:
-  #  run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
-  #  in:
-  #    ref_dict:
-  #      source: preparation/reference_with_index
-  #      valueFrom: $(self.secondaryFiles[1])
-  #    output_vcf:
-  #      source: job_uuid
-  #      valueFrom: $(self + '.muse.vcf.gz')
-  #    input_vcf: muse_sump/MUSE_OUTPUT
-  #  out: [sorted_vcf]
+  sort_muse_vcf:
+    run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
+    in:
+      ref_dict:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[1])
+      output_vcf:
+        source: job_uuid
+        valueFrom: $(self + '.muse.vcf.gz')
+      input_vcf: muse_sump/MUSE_OUTPUT
+    out: [sorted_vcf]
 
 ###MUTECT2_PIPELINE###
   mutect2:

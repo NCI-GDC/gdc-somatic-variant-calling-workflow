@@ -12,7 +12,6 @@ requirements:
     listing:
       - entry: $(inputs.input_bam)
         entryname: $(inputs.input_bam.basename)
-        writable: True
   - class: ResourceRequirement
     coresMax: 1
 

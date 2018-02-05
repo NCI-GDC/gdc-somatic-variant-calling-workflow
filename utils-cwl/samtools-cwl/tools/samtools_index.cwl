@@ -13,7 +13,6 @@ requirements:
     listing:
       - entry: $(inputs.input_bam_path)
         entryname: $(inputs.input_bam_path.basename)
-        writable: True
 
 inputs:
   input_bam_path:

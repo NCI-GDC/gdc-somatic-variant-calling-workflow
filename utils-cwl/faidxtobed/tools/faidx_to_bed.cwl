@@ -6,7 +6,7 @@ class: CommandLineTool
 
 requirements:
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/fadixtobed:1.0
+    dockerPull: quay.io/ncigdc/fadixtobed:1.1
 
 inputs:
   ref_fai:
@@ -39,4 +39,4 @@ outputs:
     outputBinding:
       glob: '*.bed'
 
-baseCommand: ['sudo', 'python', '/home/ubuntu/tools/FaidxtoBED.py']
+baseCommand: ['python', '/bin/FaidxtoBED.py']

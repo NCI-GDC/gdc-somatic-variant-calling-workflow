@@ -1,11 +1,8 @@
-FROM quay.io/jeremiahsavage/cdis_base
+FROM ubuntu:16.04
 
-USER ubuntu
+RUN apt-get update -y && \
+    apt-get install -y python-pip python-dev
 
-ENV HOME /home/ubuntu
+ADD FaidxtoBED.py /bin/
 
-ENV FaidxtoBED v1.0
-
-ADD FaidxtoBED.py ${HOME}/tools/
-
-WORKDIR ${HOME}
+ENV FaidxtoBED v1.1

@@ -59,6 +59,14 @@ inputs:
   upload_bucket:
     type: string
 
+###GRAPH_INPUTS###
+  project_id:
+    type: string?
+  caller_id:
+    type: string[]
+  experimental_strategy:
+    type: string
+
 ###GENERAL_INPUTS###
   job_uuid:
     type: string
@@ -130,10 +138,6 @@ inputs:
     default: "_realn.bam"
 
 ###MUSE_INPUTS###
-  exp_strat:
-    type: string
-    default: 'E'
-    doc: MuSE parameter. GDC default is E. Experiment strategy. E stands for WXS, and G for WGS. (E/G)
 
 ###MUTECT2_INPUTS###
   cont:
@@ -288,6 +292,15 @@ outputs:
 steps:
 
 ###PREPARATION###
+  prepare_file_prefix:
+    run: ./utils-cwl/make_prefix.cwl
+    in:
+      project_id: project_id
+      caller_id: caller_id
+      job_id: job_uuid
+      experimental_strategy: experimental_strategy
+    out: [output_prefix, muse_sump_exp]
+
   preparation:
     run: utils-cwl/subworkflows/preparation_workflow.cwl
     in:
@@ -401,8 +414,8 @@ steps:
     in:
       call_outputs: muse_call/output_file
       merged_name:
-        source: job_uuid
-        valueFrom: $(self + '.MuSE.txt')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[0] + '.txt')
     out: [merged_file]
 
   muse_sump:
@@ -410,10 +423,10 @@ steps:
     in:
       dbsnp: preparation/known_snp_with_index
       call_output: merge_muse/merged_file
-      exp_strat: exp_strat
+      exp_strat: prepare_file_prefix/muse_sump_exp
       output_base:
-        source: job_uuid
-        valueFrom: $(self + '.muse.vcf')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[0] + '.raw_somatic_mutation.vcf')
     out: [MUSE_OUTPUT]
 
   sort_muse_vcf:
@@ -423,8 +436,8 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.muse.vcf.gz')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[0] + '.raw_somatic_mutation.vcf.gz')
       input_vcf: muse_sump/MUSE_OUTPUT
     out: [sorted_vcf]
 
@@ -453,8 +466,8 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.mutect2.vcf.gz')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[1] + '.raw_somatic_mutation.vcf.gz')
       input_vcf: mutect2/MUTECT2_OUTPUT
     out: [sorted_vcf]
 
@@ -488,8 +501,8 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.somaticsniper.vcf.gz')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[2] + '.raw_somatic_mutation.vcf.gz')
       input_vcf: somaticsniper/ANNOTATED_VCF
     out: [sorted_vcf]
 
@@ -527,8 +540,8 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.snp.varscan2.vcf.gz')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[3] + '.snp.vcf.gz')
       input_vcf: varscan2/SNP_SOMATIC_HC
     out: [sorted_vcf]
 
@@ -539,8 +552,8 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.indel.varscan2.vcf.gz')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[3] + '.indel.vcf.gz')
       input_vcf: varscan2/INDEL_SOMATIC_HC
     out: [sorted_vcf]
 
@@ -550,8 +563,8 @@ steps:
       java_opts: java_opts
       input_vcf: [sort_snp_vcf/sorted_vcf, sort_indel_vcf/sorted_vcf]
       output_filename:
-        source: job_uuid
-        valueFrom: $(self + '.varscan2.vcf.gz')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[3] + '.raw_somatic_mutation.vcf.gz')
       ref_dict:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])

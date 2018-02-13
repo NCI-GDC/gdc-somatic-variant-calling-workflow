@@ -55,6 +55,8 @@ The example for input json is:
     "cosmic_gdc_id": "XXX",
     "cosmic_index_gdc_id": "XXX",
     "upload_bucket": "XXX",
-    "job_uuid": "XXX"
+    "job_uuid": "XXX",
+    "caller_id": ["MuTect2", "MuSE", "VarScan2", "SomaticSniper"],
+    "experimental_strategy": "WXS"
 }      
 ```

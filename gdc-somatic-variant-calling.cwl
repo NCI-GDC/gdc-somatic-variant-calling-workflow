@@ -135,7 +135,7 @@ inputs:
     default: true
   ir_nWayOut:
     type: string
-    default: "_realn.bam"
+    default: ".bam"
 
 ###MUSE_INPUTS###
 
@@ -258,10 +258,10 @@ inputs:
     doc: Varscan2 parameter. GDC default is 0.07. P-value for high-confidence calling.
 
 outputs:
-  tumor_realn_bam_uuid:
+  tumor_bam_uuid:
     type: string
     outputSource: uuid_bam/output
-  tumor_realn_bai_uuid:
+  tumor_bai_uuid:
     type: string
     outputSource: uuid_bam_index/output
   muse_uuid:
@@ -571,17 +571,37 @@ steps:
     out: [output_vcf_file]
 
 ###UPLOAD###
+  rename_tumor_bam:
+    run: ./utils-cwl/rename_file.cwl
+    in:
+      input_file:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[0])
+      output_filename:
+        source: job_uuid
+        valueFrom: $(self + '.tumor_cocleaned.bam')
+    out: [out_file]
+
+  rename_tumor_bai:
+    run: ./utils-cwl/rename_file.cwl
+    in:
+      input_file:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[0].secondaryFiles[0])
+      output_filename:
+        source: job_uuid
+        valueFrom: $(self + '.tumor_cocleaned.bai')
+    out: [out_file]
+
   upload_bam:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, indelrealigner/output_bam]
-        valueFrom: $(self[0])/$(self[1][0].basename)
-      local_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0])
+        source: [job_uuid, rename_tumor_bam/out_file]
+        valueFrom: $(self[0])/$(self[1].basename)
+      local_file: rename_tumor_bam/out_file
     out: [output]
 
   upload_bam_index:
@@ -590,11 +610,9 @@ steps:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, indelrealigner/output_bam]
-        valueFrom: $(self[0])/$(self[1][0].secondaryFiles[0].basename)
-      local_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0].secondaryFiles[0])
+        source: [job_uuid, rename_tumor_bai/out_file]
+        valueFrom: $(self[0])/$(self[1].basename)
+      local_file: rename_tumor_bai/out_file
     out: [output]
 
   upload_muse:

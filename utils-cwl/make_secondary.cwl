@@ -9,11 +9,10 @@ requirements:
   - class: InitialWorkDirRequirement
     listing: |
       ${
-           var i
            var ret = [{"entryname": inputs.parent_file.basename, "entry": inputs.parent_file}];
-           for( i of inputs.children ) {
-               ret.push({"entryname": i.basename, "entry": i})
-           }
+           for( var i = 0; i < inputs.children.length; i++ ) {
+               ret.push({"entryname": inputs.children[i].basename, "entry": inputs.children[i]});
+           };
            return ret
        }
 
@@ -35,9 +34,8 @@ outputs:
       ${
          var ret = [];
          var locbase = self.location.substr(0, self.location.lastIndexOf('/'))
-         var i
-         for( i of inputs.children ) {
-           ret.push({"class": "File", "location": locbase + '/' + i.basename})
+         for( var i = 0; i < inputs.children.length; i++ ) {
+           ret.push({"class": "File", "location": locbase + '/' + inputs.children[i].basename});
          }
          return ret
        }

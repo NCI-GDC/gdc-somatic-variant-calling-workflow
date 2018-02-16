@@ -62,8 +62,18 @@ inputs:
 ###GRAPH_INPUTS###
   project_id:
     type: string?
-  caller_id:
-    type: string[]
+  muse_caller_id:
+    type: string
+    default: 'muse'
+  mutect2_caller_id:
+    type: string
+    default: 'mutect2'
+  somaticsniper_caller_id:
+    type: string
+    default: 'somaticsniper'
+  varscan2_caller_id:
+    type: string
+    default: 'varscan2'
   experimental_strategy:
     type: string
 
@@ -296,7 +306,10 @@ steps:
     run: ./utils-cwl/make_prefix.cwl
     in:
       project_id: project_id
-      caller_id: caller_id
+      muse_caller_id: muse_caller_id
+      mutect2_caller_id: mutect2_caller_id
+      somaticsniper_caller_id: somaticsniper_caller_id
+      varscan2_caller_id: varscan2_caller_id
       job_id: job_uuid
       experimental_strategy: experimental_strategy
     out: [output_prefix, muse_sump_exp]

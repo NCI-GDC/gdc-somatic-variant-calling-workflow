@@ -58,6 +58,24 @@ inputs:
   upload_bucket:
     type: string
 
+###GRAPH_INPUTS###
+  project_id:
+    type: string?
+  muse_caller_id:
+    type: string
+    default: 'muse'
+  mutect2_caller_id:
+    type: string
+    default: 'mutect2'
+  somaticsniper_caller_id:
+    type: string
+    default: 'somaticsniper'
+  varscan2_caller_id:
+    type: string
+    default: 'varscan2'
+  experimental_strategy:
+    type: string
+
 ###GENERAL_INPUTS###
   job_uuid:
     type: string
@@ -122,13 +140,9 @@ inputs:
     default: true
   ir_nWayOut:
     type: string
-    default: "_realn.bam"
+    default: ".bam"
 
 ###MUSE_INPUTS###
-  exp_strat:
-    type: string
-    default: 'E'
-    doc: MuSE parameter. GDC default is E. Experiment strategy. E stands for WXS, and G for WGS. (E/G)
 
 ###MUTECT2_INPUTS###
   cont:
@@ -249,6 +263,12 @@ inputs:
     doc: Varscan2 parameter. GDC default is 0.07. P-value for high-confidence calling.
 
 outputs:
+  tumor_coclean_bam_uuid:
+    type: string
+    outputSource: uuid_bam/output
+  tumor_coclean_bai_uuid:
+    type: string
+    outputSource: uuid_bam_index/output
   muse_uuid:
     type: string
     outputSource: uuid_muse/output
@@ -277,6 +297,18 @@ outputs:
 steps:
 
 ###PREPARATION###
+  prepare_file_prefix:
+    run: ./utils-cwl/make_prefix.cwl
+    in:
+      project_id: project_id
+      muse_caller_id: muse_caller_id
+      mutect2_caller_id: mutect2_caller_id
+      somaticsniper_caller_id: somaticsniper_caller_id
+      varscan2_caller_id: varscan2_caller_id
+      job_id: job_uuid
+      experimental_strategy: experimental_strategy
+    out: [output_prefix, muse_sump_exp]
+
   preparation:
     run: utils-cwl/subworkflows/preparation_workflow.cwl
     in:
@@ -325,7 +357,6 @@ steps:
       num_threads: rtc_num_threads
       windowSize: rtc_windowSize
       reference_sequence: preparation/reference_with_index
-      intervals: faidx_to_bed/output_bed
     out: [output_intervals, output_log]
 
   indelrealigner:
@@ -352,39 +383,79 @@ steps:
       targetIntervals: realignertargetcreator/output_intervals
     out: [output_bam, output_log]
 
-  samtools_workflow:
-    run: utils-cwl/samtools-cwl/workflows/samtools_workflow.no_chunk.cwl
+  rename_normal_bai:
+    run: utils-cwl/rename_file.cwl
     in:
-      normal_input:
+      input_file:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[1].secondaryFiles[0])
+      output_filename:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[1].basename + '.bai')
+    out: [ out_file ]
+
+  make_normal_bam:
+    run: utils-cwl/make_secondary.cwl
+    in:
+      parent_file:
         source: indelrealigner/output_bam
         valueFrom: $(self[1])
-      tumor_input:
+      children:
+        source: rename_normal_bai/out_file
+        valueFrom: $([self])
+    out: [ output ]
+
+  rename_tumor_bai:
+    run: utils-cwl/rename_file.cwl
+    in:
+      input_file:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[0].secondaryFiles[0])
+      output_filename:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[0].basename + '.bai')
+    out: [ out_file ]
+
+  make_tumor_bam:
+    run: utils-cwl/make_secondary.cwl
+    in:
+      parent_file:
         source: indelrealigner/output_bam
         valueFrom: $(self[0])
-      region: faidx_to_bed/output_bed
-      reference: preparation/reference_with_index
-      min_MQ: map_q
-    out: [normal_chunk, tumor_chunk, chunk_mpileup]
+      children:
+        source: rename_tumor_bai/out_file
+        valueFrom: $([self])
+    out: [ output ]
 
-##MUSE_PIPELINE###
+  samtools_mpileup_all:
+    run: utils-cwl/samtools-cwl/tools/samtools_mpileup.no_chunk.cwl
+    in:
+      ref: preparation/reference_with_index
+      min_MQ: map_q
+      region: faidx_to_bed/output_bed
+      normal_bam: make_normal_bam/output
+      tumor_bam: make_tumor_bam/output
+    out: [output_file]
+
+###MUSE_PIPELINE###
   muse_call:
     run: submodules/muse-cwl/tools/muse_call.cwl
     in:
       ref: preparation/reference_with_index
       region: faidx_to_bed/output_bed
-      tumor_bam: samtools_workflow/tumor_chunk
-      normal_bam: samtools_workflow/normal_chunk
+      normal_bam: make_normal_bam/output
+      tumor_bam: make_tumor_bam/output
     out: [output_file]
 
   muse_sump:
     run: submodules/muse-cwl/tools/muse_sump.cwl
     in:
       dbsnp: preparation/known_snp_with_index
-      call_output: muse_call/output_file 
-      exp_strat: exp_strat
+      call_output: muse_call/output_file
+      exp_strat: prepare_file_prefix/muse_sump_exp
       output_base:
-        source: job_uuid
-        valueFrom: $(self + '.muse.vcf')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[0] + '.raw_somatic_mutation.vcf')
     out: [MUSE_OUTPUT]
 
   sort_muse_vcf:
@@ -394,8 +465,8 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.muse.vcf.gz')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[0] + '.raw_somatic_mutation.vcf.gz')
       input_vcf: muse_sump/MUSE_OUTPUT
     out: [sorted_vcf]
 
@@ -406,8 +477,8 @@ steps:
       java_heap: java_opts
       ref: preparation/reference_with_index
       region: faidx_to_bed/output_bed
-      tumor_bam: samtools_workflow/tumor_chunk
-      normal_bam: samtools_workflow/normal_chunk
+      normal_bam: make_normal_bam/output
+      tumor_bam: make_tumor_bam/output
       pon: preparation/panel_of_normal_with_index
       cosmic: preparation/cosmic_with_index
       dbsnp: preparation/known_snp_with_index
@@ -422,9 +493,9 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.mutect2.vcf.gz')
-      input_vcf: 
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[1] + '.raw_somatic_mutation.vcf.gz')
+      input_vcf:
         source: mutect2/MUTECT2_OUTPUT
         valueFrom: $([self])
     out: [sorted_vcf]
@@ -433,9 +504,9 @@ steps:
   somaticsniper:
     run: utils-cwl/subworkflows/somaticsniper_workflow.cwl
     in:
-      normal_input: samtools_workflow/normal_chunk
-      tumor_input: samtools_workflow/tumor_chunk
-      mpileup: samtools_workflow/chunk_mpileup
+      normal_input: make_normal_bam/output
+      tumor_input: make_tumor_bam/output
+      mpileup: samtools_mpileup_all/output_file
       reference: preparation/reference_with_index
       map_q: map_q
       base_q: base_q
@@ -457,19 +528,19 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.somaticsniper.vcf.gz')
-      input_vcf: 
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[2] + '.raw_somatic_mutation.vcf.gz')
+      input_vcf:
         source: somaticsniper/ANNOTATED_VCF
         valueFrom: $([self])
     out: [sorted_vcf]
 
-##VARSCAN2_PIPELINE###
+###VARSCAN2_PIPELINE###
   varscan2:
     run: utils-cwl/subworkflows/varscan_workflow.cwl
     in:
       java_opts: java_opts
-      tn_pair_pileup: samtools_workflow/chunk_mpileup
+      tn_pair_pileup: samtools_mpileup_all/output_file
       ref_dict:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
@@ -497,9 +568,9 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.snp.varscan2.vcf.gz')
-      input_vcf: 
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[3] + '.snp.vcf.gz')
+      input_vcf:
         source: varscan2/SNP_SOMATIC_HC
         valueFrom: $([self])
     out: [sorted_vcf]
@@ -511,9 +582,9 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
-        valueFrom: $(self + '.indel.varscan2.vcf.gz')
-      input_vcf: 
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[3] + '.indel.vcf.gz')
+      input_vcf:
         source: varscan2/INDEL_SOMATIC_HC
         valueFrom: $([self])
     out: [sorted_vcf]
@@ -524,14 +595,58 @@ steps:
       java_opts: java_opts
       input_vcf: [sort_snp_vcf/sorted_vcf, sort_indel_vcf/sorted_vcf]
       output_filename:
-        source: job_uuid
-        valueFrom: $(self + '.varscan2.vcf.gz')
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[3] + '.raw_somatic_mutation.vcf.gz')
       ref_dict:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
     out: [output_vcf_file]
 
-##UPLOAD###
+###UPLOAD###
+  rename_tumor_bam:
+    run: utils-cwl/rename_file.cwl
+    in:
+      input_file:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[0])
+      output_filename:
+        source: job_uuid
+        valueFrom: $(self + '.tumor_cocleaned.bam')
+    out: [out_file]
+
+  rename_tumor_bai:
+    run: utils-cwl/rename_file.cwl
+    in:
+      input_file:
+        source: indelrealigner/output_bam
+        valueFrom: $(self[0].secondaryFiles[0])
+      output_filename:
+        source: job_uuid
+        valueFrom: $(self + '.tumor_cocleaned.bai')
+    out: [out_file]
+
+  upload_bam:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: bioclient_config
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_uuid, rename_tumor_bam/out_file]
+        valueFrom: $(self[0])/$(self[1].basename)
+      local_file: rename_tumor_bam/out_file
+    out: [output]
+
+  upload_bam_index:
+    run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: bioclient_config
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_uuid, rename_tumor_bai/out_file]
+        valueFrom: $(self[0])/$(self[1].basename)
+      local_file: rename_tumor_bai/out_file
+    out: [output]
+
   upload_muse:
     run: utils-cwl/bioclient/tools/bio_client_upload_pull_uuid.cwl
     in:
@@ -628,7 +743,23 @@ steps:
         valueFrom: $(self.secondaryFiles[0])
     out: [output]
 
-##EXTRACT_UUID###
+###EXTRACT_UUID###
+  uuid_bam:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_bam/output
+      key:
+        valueFrom: 'did'
+    out: [output]
+
+  uuid_bam_index:
+    run: utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_bam_index/output
+      key:
+        valueFrom: 'did'
+    out: [output]
+
   uuid_muse:
     run: utils-cwl/emit_json_value.cwl
     in:

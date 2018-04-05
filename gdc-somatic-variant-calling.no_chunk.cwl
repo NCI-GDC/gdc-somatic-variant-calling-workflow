@@ -140,7 +140,7 @@ inputs:
     default: true
   ir_nWayOut:
     type: string
-    default: ".bam"
+    default: "_realn.bam"
 
 ###MUSE_INPUTS###
 
@@ -357,6 +357,7 @@ steps:
       num_threads: rtc_num_threads
       windowSize: rtc_windowSize
       reference_sequence: preparation/reference_with_index
+      intervals: faidx_to_bed/output_bed
     out: [output_intervals, output_log]
 
   indelrealigner:
@@ -383,7 +384,7 @@ steps:
       targetIntervals: realignertargetcreator/output_intervals
     out: [output_bam, output_log]
 
-  rename_normal_bai:
+  rename_normal_input_bai:
     run: utils-cwl/rename_file.cwl
     in:
       input_file:
@@ -401,11 +402,11 @@ steps:
         source: indelrealigner/output_bam
         valueFrom: $(self[1])
       children:
-        source: rename_normal_bai/out_file
+        source: rename_normal_input_bai/out_file
         valueFrom: $([self])
     out: [ output ]
 
-  rename_tumor_bai:
+  rename_tumor_input_bai:
     run: utils-cwl/rename_file.cwl
     in:
       input_file:
@@ -423,7 +424,7 @@ steps:
         source: indelrealigner/output_bam
         valueFrom: $(self[0])
       children:
-        source: rename_tumor_bai/out_file
+        source: rename_tumor_input_bai/out_file
         valueFrom: $([self])
     out: [ output ]
 

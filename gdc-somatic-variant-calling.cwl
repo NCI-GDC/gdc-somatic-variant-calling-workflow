@@ -145,7 +145,7 @@ inputs:
     default: true
   ir_nWayOut:
     type: string
-    default: ".bam"
+    default: "_realn.bam"
 
 ###MUSE_INPUTS###
 

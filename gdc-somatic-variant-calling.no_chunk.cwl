@@ -621,9 +621,7 @@ steps:
   rename_tumor_bam:
     run: utils-cwl/rename_file.cwl
     in:
-      input_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0])
+      input_file: make_tumor_bam/output
       output_filename:
         source: job_uuid
         valueFrom: $(self + '.tumor_cocleaned.bam')
@@ -633,8 +631,8 @@ steps:
     run: utils-cwl/rename_file.cwl
     in:
       input_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0].secondaryFiles[0])
+        source: make_tumor_bam/output
+        valueFrom: $(self.secondaryFiles[0])
       output_filename:
         source: job_uuid
         valueFrom: $(self + '.tumor_cocleaned.bai')

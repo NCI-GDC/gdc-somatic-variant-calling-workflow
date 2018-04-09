@@ -384,23 +384,39 @@ steps:
       targetIntervals: realignertargetcreator/output_intervals
     out: [output_bam, output_log]
 
+  get_cocleaned_normal:
+    run: utils-cwl/get_file_from_array.cwl
+    in:
+      filearray: indelrealigner/output_bam
+      filename:
+        source: preparation/normal_with_index
+        valueFrom: $(self.nameroot + '_realn.bam')
+    out: [output]
+
+  get_cocleaned_tumor:
+    run: utils-cwl/get_file_from_array.cwl
+    in:
+      filearray: indelrealigner/output_bam
+      filename:
+        source: preparation/tumor_with_index
+        valueFrom: $(self.nameroot + '_realn.bam')
+    out: [output]
+
   rename_normal_input_bai:
     run: utils-cwl/rename_file.cwl
     in:
       input_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[1].secondaryFiles[0])
+        source: get_cocleaned_normal/output
+        valueFrom: $(self.secondaryFiles[0])
       output_filename:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[1].basename + '.bai')
+        source: get_cocleaned_normal/output
+        valueFrom: $(self.basename + '.bai')
     out: [ out_file ]
 
   make_normal_bam:
     run: utils-cwl/make_secondary.cwl
     in:
-      parent_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[1])
+      parent_file: get_cocleaned_normal/output
       children:
         source: rename_normal_input_bai/out_file
         valueFrom: $([self])
@@ -410,19 +426,17 @@ steps:
     run: utils-cwl/rename_file.cwl
     in:
       input_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0].secondaryFiles[0])
+        source: get_cocleaned_tumor/output
+        valueFrom: $(self.secondaryFiles[0])
       output_filename:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0].basename + '.bai')
+        source: get_cocleaned_tumor/output
+        valueFrom: $(self.basename + '.bai')
     out: [ out_file ]
 
   make_tumor_bam:
     run: utils-cwl/make_secondary.cwl
     in:
-      parent_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0])
+      parent_file: get_cocleaned_tumor/output
       children:
         source: rename_tumor_input_bai/out_file
         valueFrom: $([self])

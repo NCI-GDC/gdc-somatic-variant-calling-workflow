@@ -84,6 +84,10 @@ inputs:
     type: string
     default: '3G'
     doc: Java option flags for all the java cmd. GDC default is 3G.
+  threads:
+    type: int
+    default: 8
+    doc: Threads for muse and mutect2 docker.
   usedecoy:
     type: boolean
     default: false
@@ -454,12 +458,13 @@ steps:
 
 ###MUSE_PIPELINE###
   muse_call:
-    run: submodules/muse-cwl/tools/muse_call.cwl
+    run: submodules/muse-cwl/tools/multi_muse_call.cwl
     in:
       ref: preparation/reference_with_index
       region: faidx_to_bed/output_bed
       normal_bam: make_normal_bam/output
       tumor_bam: make_tumor_bam/output
+      thread_count: threads
     out: [output_file]
 
   muse_sump:
@@ -487,7 +492,7 @@ steps:
 
 ###MUTECT2_PIPELINE###
   mutect2:
-    run: submodules/mutect2-cwl/tools/mutect2_somatic_variant.no_chunk.cwl
+    run: submodules/mutect2-cwl/tools/multi_mutect2_svc.cwl
     in:
       java_heap: java_opts
       ref: preparation/reference_with_index
@@ -499,6 +504,7 @@ steps:
       dbsnp: preparation/known_snp_with_index
       cont: cont
       duscb: duscb
+      thread_count: threads
     out: [MUTECT2_OUTPUT]
 
   sort_mutect2_vcf:
@@ -510,9 +516,7 @@ steps:
       output_vcf:
         source: prepare_file_prefix/output_prefix
         valueFrom: $(self[1] + '.raw_somatic_mutation.vcf.gz')
-      input_vcf:
-        source: mutect2/MUTECT2_OUTPUT
-        valueFrom: $([self])
+      input_vcf: mutect2/MUTECT2_OUTPUT
     out: [sorted_vcf]
 
 ###SOMATICSNIPER_PIPELINE###

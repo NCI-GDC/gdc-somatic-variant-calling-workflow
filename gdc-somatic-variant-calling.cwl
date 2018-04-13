@@ -145,7 +145,7 @@ inputs:
     default: true
   ir_nWayOut:
     type: string
-    default: ".bam"
+    default: "_realn.bam"
 
 ###MUSE_INPUTS###
 
@@ -389,16 +389,70 @@ steps:
       targetIntervals: realignertargetcreator/output_intervals
     out: [output_bam, output_log]
 
+  get_cocleaned_normal:
+    run: utils-cwl/get_file_from_array.cwl
+    in:
+      filearray: indelrealigner/output_bam
+      filename:
+        source: preparation/normal_with_index
+        valueFrom: $(self.nameroot + '_realn.bam')
+    out: [output]
+
+  get_cocleaned_tumor:
+    run: utils-cwl/get_file_from_array.cwl
+    in:
+      filearray: indelrealigner/output_bam
+      filename:
+        source: preparation/tumor_with_index
+        valueFrom: $(self.nameroot + '_realn.bam')
+    out: [output]
+
+  rename_normal_input_bai:
+    run: utils-cwl/rename_file.cwl
+    in:
+      input_file:
+        source: get_cocleaned_normal/output
+        valueFrom: $(self.secondaryFiles[0])
+      output_filename:
+        source: get_cocleaned_normal/output
+        valueFrom: $(self.basename + '.bai')
+    out: [ out_file ]
+
+  make_normal_bam:
+    run: utils-cwl/make_secondary.cwl
+    in:
+      parent_file: get_cocleaned_normal/output
+      children:
+        source: rename_normal_input_bai/out_file
+        valueFrom: $([self])
+    out: [ output ]
+
+  rename_tumor_input_bai:
+    run: utils-cwl/rename_file.cwl
+    in:
+      input_file:
+        source: get_cocleaned_tumor/output
+        valueFrom: $(self.secondaryFiles[0])
+      output_filename:
+        source: get_cocleaned_tumor/output
+        valueFrom: $(self.basename + '.bai')
+    out: [ out_file ]
+
+  make_tumor_bam:
+    run: utils-cwl/make_secondary.cwl
+    in:
+      parent_file: get_cocleaned_tumor/output
+      children:
+        source: rename_tumor_input_bai/out_file
+        valueFrom: $([self])
+    out: [ output ]
+
   samtools_workflow:
     run: utils-cwl/samtools-cwl/workflows/samtools_workflow.cwl
     scatter: region
     in:
-      normal_input:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[1])
-      tumor_input:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0])
+      normal_input: make_normal_bam/output
+      tumor_input: make_tumor_bam/output
       region: faidx_to_bed/output_bed
       reference: preparation/reference_with_index
       min_MQ: map_q
@@ -587,9 +641,7 @@ steps:
   rename_tumor_bam:
     run: ./utils-cwl/rename_file.cwl
     in:
-      input_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0])
+      input_file: make_tumor_bam/output
       output_filename:
         source: job_uuid
         valueFrom: $(self + '.tumor_cocleaned.bam')
@@ -599,8 +651,8 @@ steps:
     run: ./utils-cwl/rename_file.cwl
     in:
       input_file:
-        source: indelrealigner/output_bam
-        valueFrom: $(self[0].secondaryFiles[0])
+        source: make_tumor_bam/output
+        valueFrom: $(self.secondaryFiles[0])
       output_filename:
         source: job_uuid
         valueFrom: $(self + '.tumor_cocleaned.bai')

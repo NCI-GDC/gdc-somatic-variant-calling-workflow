@@ -87,7 +87,7 @@ inputs:
   threads:
     type: int
     default: 8
-    doc: Threads for muse and mutect2 docker.
+    doc: Threads for internal multithreading dockers.
   usedecoy:
     type: boolean
     default: false

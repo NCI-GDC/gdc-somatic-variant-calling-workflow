@@ -1,7 +1,8 @@
 GDC Somatic Variant Calling Workflow
 ---
 
-The main runner is `gdc-somatic-variant-calling.cwl`
+The main runner now is `gdc-somatic-variant-calling.internal_chunk.cwl` on cwltool engine.
+`gdc-somatic-variant-calling.cwl` for rabix/bunny engine is under development.
 
 The bioclient `config_file` example is:
 ```

@@ -446,15 +446,22 @@ steps:
         valueFrom: $([self])
     out: [ output ]
 
-  samtools_mpileup_all:
-    run: utils-cwl/samtools-cwl/tools/samtools_mpileup.no_chunk.cwl
+  multi_samtools_mpileup:
+    run: utils-cwl/samtools-cwl/tools/multi_samtools_mpileup.cwl
     in:
       ref: preparation/reference_with_index
       min_MQ: map_q
       region: faidx_to_bed/output_bed
       normal_bam: make_normal_bam/output
       tumor_bam: make_tumor_bam/output
+      thread_count: threads
     out: [output_file]
+
+  get_groups:
+    run: utils-cwl/divide_groups.cwl
+    in:
+      inputFile: [multi_samtools_mpileup/output_file]
+    out: [emptyFile, trueFile]
 
 ###MUSE_PIPELINE###
   muse_call:
@@ -521,11 +528,12 @@ steps:
 
 ###SOMATICSNIPER_PIPELINE###
   somaticsniper:
-    run: utils-cwl/subworkflows/somaticsniper_workflow.cwl
+    run: submodules/somaticsniper-cwl/tools/multi_somaticsniper.cwl
     in:
       normal_input: make_normal_bam/output
       tumor_input: make_tumor_bam/output
-      mpileup: samtools_mpileup_all/output_file
+      thread_count: threads
+      mpileup: multi_samtools_mpileup/output_file
       reference: preparation/reference_with_index
       map_q: map_q
       base_q: base_q
@@ -549,17 +557,16 @@ steps:
       output_vcf:
         source: prepare_file_prefix/output_prefix
         valueFrom: $(self[2] + '.raw_somatic_mutation.vcf.gz')
-      input_vcf:
-        source: somaticsniper/ANNOTATED_VCF
-        valueFrom: $([self])
+      input_vcf: somaticsniper/ANNOTATED_VCF
     out: [sorted_vcf]
 
 ###VARSCAN2_PIPELINE###
   varscan2:
-    run: utils-cwl/subworkflows/varscan_workflow.cwl
+    run: submodules/varscan-cwl/tools/multi_varscan2.cwl
     in:
+      thread_count: threads
       java_opts: java_opts
-      tn_pair_pileup: samtools_mpileup_all/output_file
+      tn_pair_pileup: get_groups/trueFile
       ref_dict:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
@@ -589,9 +596,7 @@ steps:
       output_vcf:
         source: prepare_file_prefix/output_prefix
         valueFrom: $(self[3] + '.snp.vcf.gz')
-      input_vcf:
-        source: varscan2/SNP_SOMATIC_HC
-        valueFrom: $([self])
+      input_vcf: varscan2/SNP_SOMATIC_HC
     out: [sorted_vcf]
 
   sort_indel_vcf:
@@ -603,9 +608,7 @@ steps:
       output_vcf:
         source: prepare_file_prefix/output_prefix
         valueFrom: $(self[3] + '.indel.vcf.gz')
-      input_vcf:
-        source: varscan2/INDEL_SOMATIC_HC
-        valueFrom: $([self])
+      input_vcf: varscan2/INDEL_SOMATIC_HC
     out: [sorted_vcf]
 
   varscan2_mergevcf:

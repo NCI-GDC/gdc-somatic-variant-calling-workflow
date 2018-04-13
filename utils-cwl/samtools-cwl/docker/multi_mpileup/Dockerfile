@@ -5,4 +5,4 @@ RUN apt-get update -y && \
 
 ADD multi_mpileup.py /bin/
 
-ENV multi_mpileup v1.1
+ENV multi_mpileup v1.2

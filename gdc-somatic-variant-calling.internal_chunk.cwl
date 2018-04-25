@@ -485,6 +485,15 @@ steps:
         valueFrom: $(self[0] + '.raw_somatic_mutation.vcf')
     out: [MUSE_OUTPUT]
 
+  filter_muse:
+    run: submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    in:
+      input_vcf: muse_sump/MUSE_OUTPUT
+      output_filename:
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[0] + '.standard_unsorted.vcf')
+    out: [output_file]
+
   sort_muse_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
@@ -494,7 +503,9 @@ steps:
       output_vcf:
         source: prepare_file_prefix/output_prefix
         valueFrom: $(self[0] + '.raw_somatic_mutation.vcf.gz')
-      input_vcf: muse_sump/MUSE_OUTPUT
+      input_vcf:
+        source: filter_muse/output_file
+        valueFrom: $([self])
     out: [sorted_vcf]
 
 ###MUTECT2_PIPELINE###
@@ -514,6 +525,15 @@ steps:
       thread_count: threads
     out: [MUTECT2_OUTPUT]
 
+  filter_mutect2:
+    run: submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    in:
+      input_vcf: mutect2/MUTECT2_OUTPUT
+      output_filename:
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[1] + '.standard_unsorted.vcf')
+    out: [output_file]
+
   sort_mutect2_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
@@ -523,7 +543,9 @@ steps:
       output_vcf:
         source: prepare_file_prefix/output_prefix
         valueFrom: $(self[1] + '.raw_somatic_mutation.vcf.gz')
-      input_vcf: mutect2/MUTECT2_OUTPUT
+      input_vcf:
+        source: filter_mutect2/output_file
+        valueFrom: $([self])
     out: [sorted_vcf]
 
 ###SOMATICSNIPER_PIPELINE###
@@ -548,6 +570,28 @@ steps:
       fout: fout
     out: [ANNOTATED_VCF]
 
+  updateseqdict_somaticsniper:
+    run: utils-cwl/picard-cwl/tools/picard_update_seq_dict.cwl
+    in:
+      java_opts: java_opts
+      input_vcf: somaticsniper/ANNOTATED_VCF
+      output_filename:
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[2] + '.updated.vcf')
+      ref_dict:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[1])
+    out: [output_vcf_file]
+
+  filter_somaticsniper:
+    run: submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    in:
+      input_vcf: updateseqdict_somaticsniper/output_vcf_file
+      output_filename:
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[2] + '.standard_unsorted.vcf')
+    out: [output_file]
+
   sort_somaticsniper_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
@@ -557,7 +601,9 @@ steps:
       output_vcf:
         source: prepare_file_prefix/output_prefix
         valueFrom: $(self[2] + '.raw_somatic_mutation.vcf.gz')
-      input_vcf: somaticsniper/ANNOTATED_VCF
+      input_vcf:
+        source: filter_somaticsniper/output_file
+        valueFrom: $([self])
     out: [sorted_vcf]
 
 ###VARSCAN2_PIPELINE###
@@ -587,6 +633,24 @@ steps:
       vps_p_value: vps_p_value
     out: [SNP_SOMATIC_HC, INDEL_SOMATIC_HC]
 
+  filter_varscan2_snp:
+    run: submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    in:
+      input_vcf: varscan2/SNP_SOMATIC_HC
+      output_filename:
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[3] + '.standard_unsorted.snp.vcf')
+    out: [output_file]
+
+  filter_varscan2_indel:
+    run: submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    in:
+      input_vcf: varscan2/INDEL_SOMATIC_HC
+      output_filename:
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self[3] + '.standard_unsorted.indel.vcf')
+    out: [output_file]
+
   sort_snp_vcf:
     run: utils-cwl/picard-cwl/tools/picard_sortvcf.cwl
     in:
@@ -596,7 +660,9 @@ steps:
       output_vcf:
         source: prepare_file_prefix/output_prefix
         valueFrom: $(self[3] + '.snp.vcf.gz')
-      input_vcf: varscan2/SNP_SOMATIC_HC
+      input_vcf:
+        source: filter_varscan2_snp/output_file
+        valueFrom: $([self])
     out: [sorted_vcf]
 
   sort_indel_vcf:
@@ -608,7 +674,9 @@ steps:
       output_vcf:
         source: prepare_file_prefix/output_prefix
         valueFrom: $(self[3] + '.indel.vcf.gz')
-      input_vcf: varscan2/INDEL_SOMATIC_HC
+      input_vcf:
+        source: filter_varscan2_indel/output_file
+        valueFrom: $([self])
     out: [sorted_vcf]
 
   varscan2_mergevcf:

@@ -7,7 +7,7 @@ class: CommandLineTool
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/picard
+    dockerPull: quay.io/ncigdc/picard@sha256:e22300e94040a4ad93256b911157493b9344b82c4c7df7e8cae61432adb952e4
   - class: ResourceRequirement
     coresMax: 1
 

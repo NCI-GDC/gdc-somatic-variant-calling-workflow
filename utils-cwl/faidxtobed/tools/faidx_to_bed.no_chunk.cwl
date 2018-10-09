@@ -6,8 +6,8 @@ class: CommandLineTool
 
 requirements:
   - class: DockerRequirement
-    dockerPull: alpine 
-  - class: InlineJavascriptRequirement 
+    dockerPull: alpine
+  - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
 
 inputs:
@@ -27,7 +27,7 @@ outputs:
 
 stdout: 'intervals.bed'
 
-baseCommand: [] 
+baseCommand: []
 
 arguments:
   - valueFrom: |
@@ -36,7 +36,7 @@ arguments:
          if( inputs.usedecoy ) {
              cmd.push("\'{print $1 \"\\t0\\t\" $2}\'")
          } else {
-             cmd.push("\'{if($0~/^chr[1-9MXY]+[[:space:]]/){print $1 \"\\t0\\t\" $2}}\'")
+             cmd.push("\'{if($0~/^chr[0-9MXY]+[[:space:]]/){print $1 \"\\t0\\t\" $2}}\'")
          }
          return(cmd.join(' '))
        }

@@ -9,7 +9,7 @@
 [submodule "submodules/muse-cwl"]
 	path = submodules/muse-cwl
 	url = git@github.com:NCI-GDC/muse-cwl.git
-	branch = submodule
+	branch = master
 [submodule "submodules/mutect2-cwl"]
 	path = submodules/mutect2-cwl
 	url = git@github.com:NCI-GDC/mutect2-cwl.git

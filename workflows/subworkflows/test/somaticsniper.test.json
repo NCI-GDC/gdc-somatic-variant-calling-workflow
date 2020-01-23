@@ -1,0 +1,10 @@
+{
+    "reference": {"class": "File", "path": "DEDACTED"},
+    "normal_bam": {"class": "File", "path": "DEDACTED"},
+    "tumor_bam": {"class": "File", "path": "DEDACTED"},
+    "mpileups": [
+        {"class": "File", "path": "DEDACTED"},
+        {"class": "File", "path": "DEDACTED"}
+    ],
+    "output_prefix": "somaticsniper.test"
+}

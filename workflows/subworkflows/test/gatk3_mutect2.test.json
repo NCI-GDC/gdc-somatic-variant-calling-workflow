@@ -1,0 +1,11 @@
+{
+    "reference": {"class": "File", "path": "DEDACTED"},
+    "bed": {"class": "File", "path": "DEDACTED"},
+    "normal_bam": {"class": "File", "path": "DEDACTED"},
+    "tumor_bam": {"class": "File", "path": "DEDACTED"},
+    "threads": 2,
+    "dbsnp": {"class": "File", "path": "DEDACTED"},
+    "cosmic": {"class": "File", "path": "DEDACTED"},
+    "pon": {"class": "File", "path": "DEDACTED"},
+    "output_prefix": "gatk3_mutect2.test"
+}

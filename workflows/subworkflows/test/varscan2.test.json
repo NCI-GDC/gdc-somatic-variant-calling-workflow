@@ -1,0 +1,9 @@
+{
+    "reference": {"class": "File", "path": "DEDACTED"},
+    "mpileups": [
+        {"class": "File", "path": "DEDACTED"},
+        {"class": "File", "path": "DEDACTED"}
+    ],
+    "output_prefix": "varscan2.test",
+    "threads": 2
+}

@@ -15,11 +15,11 @@ inputs:
     doc: Job id. Served as filename prefix.
   normal_bam:
     type: File
-    secondaryFiles: .bai
+    secondaryFiles: ^.bai
     doc: Normal BAM file with .bai index.
   tumor_bam:
     type: File
-    secondaryFiles: .bai
+    secondaryFiles: ^.bai
     doc: Tumor BAM file with .bai index.
   reference:
     type: File

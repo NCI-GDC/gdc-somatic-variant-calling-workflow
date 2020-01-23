@@ -246,6 +246,9 @@ inputs:
     doc: Varscan2 parameter. GDC default is 0.07. P-value for high-confidence calling.
 
 outputs:
+  cocleaned_tumor_bam:
+    type: File
+    outputSource: gdc_gatk3_coclean/cocleaned_tumor_bam
   gdc_muse_vcf:
     type: File
     outputSource: gdc_muse/muse_vcf

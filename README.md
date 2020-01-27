@@ -43,6 +43,7 @@ For more information, please visit the above submodule links.
 GDC workflow contains GATK3 IndelRealignment and all four callers, `workflows/gdc-somatic-variant-calling-workflow.cwl`.
 
 General inputs<br>
+
 | Name | type | Description |
 | ---- | ---- | ----------- |
 | project_id | string? | Project id. Served as file name prefix. |
@@ -65,6 +66,7 @@ General inputs<br>
 <br>
 
 Step inputs<br>
+
 | Step | Name | Description |
 | ---- | ---- | ----------- |
 | GATK3 coclean | --gatk_\*<br> --rtc_\*<br> --ir_\* | GATK3 `RealignerTargetCreator` and `IndelRealigner` parameters |

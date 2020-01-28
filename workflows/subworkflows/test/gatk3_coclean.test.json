@@ -1,0 +1,8 @@
+{
+    "job_uuid": "gatk3_coclean.test",
+    "normal_bam": {"class": "File", "path": "DEDACTED"},
+    "tumor_bam": {"class": "File", "path": "DEDACTED"},
+    "reference": {"class": "File", "path": "DEDACTED"},
+    "known_indel": {"class": "File", "path": "DEDACTED"},
+    "bed_file": {"class": "File", "path": "DEDACTED"}
+}

@@ -1,0 +1,12 @@
+{
+    "experimental_strategy": "WXS",
+    "normal_bam": {"class": "File", "path": "DEDACTED"},
+    "tumor_bam": {"class": "File", "path": "DEDACTED"},
+    "reference": {"class": "File", "path": "DEDACTED"},
+    "known_indel": {"class": "File", "path": "DEDACTED"},
+    "known_snp": {"class": "File", "path": "DEDACTED"},
+    "panel_of_normal": {"class": "File", "path": "DEDACTED"},
+    "cosmic": {"class": "File", "path": "DEDACTED"},
+    "job_uuid": "transform.test",
+    "threads": 2
+}

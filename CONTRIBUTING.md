@@ -1,5 +1,24 @@
 - [Development Practices](#development-practices)
+  - [Git Templates](#git-templates)
+  - [Feature Pattern](#feature-pattern)
+  - [Page Object Pattern](#page-object-pattern)
 - [Version Control](#version-control)
+  - [Branches](#branches)
+  - [Commits](#commits)
+  - [Code Review](#code-review)
+  - [Rebase](#rebase)
+  - [Merge Branch](#merge-branch)
+  - [Tags](#tags)
+  - [Signed Commits](#signed-commits)
+    - [Generating a PGP Key](#generating-a-pgp-key)
+    - [Adding a maintainer key](#adding-a-maintainer-key)
+  - [Master Branch](#master-branch)
+  - [Release](#release)
+    - [Version Schema](#version-schema)
+    - [Prepare release](#prepare-release)
+    - [Publish release](#publish-release)
+    - [Start next release](#start-next-release)
+  - [Workflow](#workflow)
 
 # Development Practices
 - [Git Templates](#git-templates)
@@ -18,7 +37,7 @@ Feature pattern can simplify development
 - https://medium.com/opinionated-angularjs/scalable-code-organization-in-angularjs-9f01b594bf06
 - https://github.com/mgechev/angularjs-in-patterns
 - http://blog.mgechev.com/2014/05/08/angularjs-in-patterns-part-1-overview-of-angularjs/
- 
+
 ## Page Object Pattern
 
 Page Object pattern can simplify testing
@@ -32,16 +51,27 @@ Page Object pattern can simplify testing
 
 # Version Control
 
-- [Branches](#branches)
-- [Commits](#commits)
-- [Code Review](#code-review)
-- [Rebase](#rebase)
-- [Merge Branch](#merge-branch)
-- [Tags](#tags)
-- [Signed Commits](#signed-commits)
-- [Master Branch](#master-branch)
-- [Release](#release)
-- [Workflow](#workflow)
+- [Development Practices](#development-practices)
+  - [Git Templates](#git-templates)
+  - [Feature Pattern](#feature-pattern)
+  - [Page Object Pattern](#page-object-pattern)
+- [Version Control](#version-control)
+  - [Branches](#branches)
+  - [Commits](#commits)
+  - [Code Review](#code-review)
+  - [Rebase](#rebase)
+  - [Merge Branch](#merge-branch)
+  - [Tags](#tags)
+  - [Signed Commits](#signed-commits)
+    - [Generating a PGP Key](#generating-a-pgp-key)
+    - [Adding a maintainer key](#adding-a-maintainer-key)
+  - [Master Branch](#master-branch)
+  - [Release](#release)
+    - [Version Schema](#version-schema)
+    - [Prepare release](#prepare-release)
+    - [Publish release](#publish-release)
+    - [Start next release](#start-next-release)
+  - [Workflow](#workflow)
 
 ## Branches
 All development should happen on a branch not on master. Branches should formatted as `type/GDC-##-couple-words` or `type/very-short-description`.
@@ -61,7 +91,7 @@ This branch structure is similar to git flow but customized for our use cases. A
 Commit messages follow a combination of guidelines set by Angular and Tim Pope.
 
 Examples of valid commits:
- 
+
 ```
 type(scope): one line description (50 char or less)
 ```
@@ -95,7 +125,7 @@ This format is automatically checked by a pre commit git hook.
 
 ## Code Review
 
-All branches should be pushed to [Github](https://github.com/NCI-GDC/portal-ui) for code review. 
+All branches should be pushed to [Github](https://github.com/NCI-GDC/gdc-somatic-variant-calling-workflows) for code review.
 
 Any branches containing significant work need to be reviewed and signed-off before they can be considered complete.
 
@@ -132,7 +162,7 @@ Tags should be signed.
 
 ### Generating a PGP Key
 ```
-❯ brew install gpg 
+❯ brew install gpg
 ❯ gpg --gen-key
 ❯ gpg --list-secret-keys | grep "^sec"
 [gpg-key-id]

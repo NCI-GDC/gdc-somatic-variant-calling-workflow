@@ -40,7 +40,8 @@ You could find individual caller's CWL workflow under `workflows/subworkflows`.
 For more information, please visit the above submodule links.
 
 ### GDC workflow entrypoint
-GDC workflow contains GATK3 IndelRealignment and all four callers, `workflows/gdc-somatic-variant-calling-workflow.cwl`.
+GDC workflow contains GATK3 IndelRealignment and all four callers, `workflows/gdc-somatic-variant-calling-workflow.cwl`.<br>
+To replicate GDC results, all the references could be found at [GDC reference files](https://gdc.cancer.gov/about-data/data-harmonization-and-generation/gdc-reference-files "GDC reference files").
 
 General inputs<br>
 

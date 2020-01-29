@@ -30,6 +30,9 @@ The CWL are tested under multiple `cwltools` environments. The most tested one i
 
 
 ## For external users
+
+The repository has only been tested on GDC data and in the particular environment GDC is running in. Some of the reference data required for the workflow production are hosted in [GDC reference files](https://gdc.cancer.gov/about-data/data-harmonization-and-generation/gdc-reference-files "GDC reference files"). For any questions related to GDC data, please contact the GDC Help Desk at support@nci-gdc.datacommons.io.
+
 ### Individual caller CWL workflow
 You could find individual caller's CWL workflow under `workflows/subworkflows`.
 * [MuSE workflow](workflows/subworkflows/muse_workflow.cwl "MuSE workflow")
@@ -41,7 +44,6 @@ For more information, please visit the above submodule links.
 
 ### GDC workflow entrypoint
 GDC workflow contains GATK3 IndelRealignment and all four callers, `workflows/gdc-somatic-variant-calling-workflow.cwl`.<br>
-To replicate GDC results, all the references could be found at [GDC reference files](https://gdc.cancer.gov/about-data/data-harmonization-and-generation/gdc-reference-files "GDC reference files").
 
 General inputs<br>
 

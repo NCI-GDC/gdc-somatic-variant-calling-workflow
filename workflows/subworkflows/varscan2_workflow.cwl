@@ -121,10 +121,19 @@ steps:
       vps_p_value: vps_p_value
     out: [SNP_SOMATIC_HC, INDEL_SOMATIC_HC]
 
+  remove_non_standard_variants_on_snp:
+    run: ../../submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    in:
+      input_vcf: varscan2/SNP_SOMATIC_HC
+      output_filename:
+        source: output_prefix
+        valueFrom: $(self + '.snp.standard_unsorted.vcf')
+    out: [output_file]
+
   update_seqdict_on_snp:
     run: ../../tools/picard/picard_update_seq_dict.cwl
     in:
-      input_vcf: varscan2/SNP_SOMATIC_HC
+      input_vcf: remove_non_standard_variants_on_snp/output_file
       output_filename:
         source: output_prefix
         valueFrom: $(self + '.snp.upseqdict.vcf')
@@ -132,36 +141,6 @@ steps:
         source: reference
         valueFrom: $(self.secondaryFiles[1])
     out: [output_vcf_file]
-
-  update_seqdict_on_indel:
-    run: ../../tools/picard/picard_update_seq_dict.cwl
-    in:
-      input_vcf: varscan2/INDEL_SOMATIC_HC
-      output_filename:
-        source: output_prefix
-        valueFrom: $(self + '.indel.upseqdict.vcf')
-      ref_dict:
-        source: reference
-        valueFrom: $(self.secondaryFiles[1])
-    out: [output_vcf_file]
-
-  remove_non_standard_variants_on_snp:
-    run: ../../submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
-    in:
-      input_vcf: update_seqdict_on_snp/output_vcf_file
-      output_filename:
-        source: output_prefix
-        valueFrom: $(self + '.snp.standard_unsorted.vcf')
-    out: [output_file]
-
-  remove_non_standard_variants_on_indel:
-    run: ../../submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
-    in:
-      input_vcf: update_seqdict_on_indel/output_vcf_file
-      output_filename:
-        source: output_prefix
-        valueFrom: $(self + '.indel.standard_unsorted.vcf')
-    out: [output_file]
 
   sort_snp_vcf:
     run: ../../tools/picard/picard_sortvcf.cwl
@@ -173,9 +152,30 @@ steps:
         source: output_prefix
         valueFrom: $(self + '.snp.sorted.vcf.gz')
       input_vcf:
-        source: remove_non_standard_variants_on_snp/output_file
+        source: update_seqdict_on_snp/output_vcf_file
         valueFrom: $([self])
     out: [sorted_vcf]
+
+  remove_non_standard_variants_on_indel:
+    run: ../../submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    in:
+      input_vcf: varscan2/INDEL_SOMATIC_HC
+      output_filename:
+        source: output_prefix
+        valueFrom: $(self + '.indel.standard_unsorted.vcf')
+    out: [output_file]
+
+  update_seqdict_on_indel:
+    run: ../../tools/picard/picard_update_seq_dict.cwl
+    in:
+      input_vcf: remove_non_standard_variants_on_indel/output_file
+      output_filename:
+        source: output_prefix
+        valueFrom: $(self + '.indel.upseqdict.vcf')
+      ref_dict:
+        source: reference
+        valueFrom: $(self.secondaryFiles[1])
+    out: [output_vcf_file]
 
   sort_indel_vcf:
     run: ../../tools/picard/picard_sortvcf.cwl
@@ -187,7 +187,7 @@ steps:
         source: output_prefix
         valueFrom: $(self + '.indel.sorted.vcf.gz')
       input_vcf:
-        source: remove_non_standard_variants_on_indel/output_file
+        source: update_seqdict_on_indel/output_vcf_file
         valueFrom: $([self])
     out: [sorted_vcf]
 

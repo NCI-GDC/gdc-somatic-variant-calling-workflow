@@ -1,0 +1,78 @@
+{
+    "experimental_strategy": "WXS",
+    "tumor_bam": {
+        "class": "File",
+        "path": "{PATH_TO}/6129943d-ea10-52fc-aff1-62ce5f34ecdb_wxs_gdc_realn.bam",
+        "secondaryFiles": [
+            {
+                "class": "File",
+                "path": "{PATH_TO}/6129943d-ea10-52fc-aff1-62ce5f34ecdb_wxs_gdc_realn.bai"
+            }
+        ]
+    },
+    "normal_bam": {
+        "class": "File",
+        "path": "{PATH_TO}/a0107611-3d26-40af-9a96-6c71662975ba_wxs_gdc_realn.bam",
+        "secondaryFiles": [
+            {
+                "class": "File",
+                "path": "{PATH_TO}/a0107611-3d26-40af-9a96-6c71662975ba_wxs_gdc_realn.bai"
+            }
+        ]
+    },
+    "reference": {
+        "class": "File",
+        "path": "{PATH_TO}/GRCh38.d1.vd1.fa",
+        "secondaryFiles": [
+            {
+                "class": "File",
+                "path": "{PATH_TO}/GRCh38.d1.vd1.fa.fai"
+            }, {
+                "class": "File",
+                "path": "{PATH_TO}/GRCh38.d1.vd1.dict"
+            }
+        ]
+    },
+    "known_indel": {
+        "class": "File",
+        "path": "{PATH_TO}/Homo_sapiens_assembly38.known_indels.vcf.gz",
+        "secondaryFiles": [
+            {
+                "class": "File",
+                "path": "{PATH_TO}/Homo_sapiens_assembly38.known_indels.vcf.gz.tbi"
+            }
+        ]
+    },
+    "known_snp": {
+        "class": "File",
+        "path": "{PATH_TO}/dbsnp_144.hg38.vcf.gz",
+        "secondaryFiles": [
+            {
+                "class": "File",
+                "path": "{PATH_TO}/dbsnp_144.hg38.vcf.gz.tbi"
+            }
+        ]
+    },
+    "panel_of_normal": {
+        "class": "File",
+        "path": "{PATH_TO}/MuTect2.PON.4136.vcf.gz",
+        "secondaryFiles": [
+            {
+                "class": "File",
+                "path": "{PATH_TO}/MuTect2.PON.4136.vcf.gz.tbi"
+            }
+        ]
+    },
+    "cosmic": {
+        "class": "File",
+        "path": "{PATH_TO}/CosmicCombined.srt.vcf.gz",
+        "secondaryFiles": [
+            {
+                "class": "File",
+                "path": "{PATH_TO}/CosmicCombined.srt.vcf.gz.tbi"
+            }
+        ]
+    },
+    "job_uuid": "f642c25f-e8d0-44e3-a691-481689eaf3ef",
+    "threads": 8
+}

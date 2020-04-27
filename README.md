@@ -45,6 +45,8 @@ For more information, please visit the above submodule links.
 ### GDC workflow entrypoint
 GDC workflow contains GATK3 IndelRealignment and all four callers, `workflows/gdc-somatic-variant-calling-workflow.cwl`.<br>
 
+The example of input json in `example/main_workflow.example.input.json`.
+
 General inputs<br>
 
 | Name | type | Description |

@@ -1,24 +1,24 @@
 [submodule "submodules/somaticsniper-cwl"]
 	path = submodules/somaticsniper-cwl
-	url = git@github.com:NCI-GDC/somaticsniper-cwl.git
+	url = https://github.com/NCI-GDC/somaticsniper-cwl.git
 	branch = master
 [submodule "submodules/varscan-cwl"]
 	path = submodules/varscan-cwl
-	url = git@github.com:NCI-GDC/varscan-cwl.git
+	url = https://github.com/NCI-GDC/varscan-cwl.git
 	branch = master
 [submodule "submodules/muse-cwl"]
 	path = submodules/muse-cwl
-	url = git@github.com:NCI-GDC/muse-cwl.git
+	url = https://github.com/NCI-GDC/muse-cwl.git
 	branch = master
 [submodule "submodules/mutect2-cwl"]
 	path = submodules/mutect2-cwl
-	url = git@github.com:NCI-GDC/mutect2-cwl.git
+	url = https://github.com/NCI-GDC/mutect2-cwl.git
 	branch = master
 [submodule "submodules/variant-filtration-cwl"]
 	path = submodules/variant-filtration-cwl
-	url = git@github.com:NCI-GDC/variant-filtration-cwl.git
+	url = https://github.com/NCI-GDC/variant-filtration-cwl.git
 	branch = submodule
 [submodule "submodules/samtools-mpileup-cwl"]
 	path = submodules/samtools-mpileup-cwl
-	url = git@github.com:NCI-GDC/samtools-mpileup-cwl.git
+	url = https://github.com/NCI-GDC/samtools-mpileup-cwl.git
 	branch = master

@@ -86,7 +86,7 @@ inputs:
 
   maxReadsInMemory:
     type: int
-    default: 150000
+    default: 1500000
     inputBinding:
       prefix: --maxReadsInMemory
 

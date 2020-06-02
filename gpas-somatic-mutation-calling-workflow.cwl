@@ -134,7 +134,7 @@ inputs:
     default: 20000
   ir_maxReadsInMemory:
     type: int
-    default: 150000
+    default: 1500000
   ir_noOriginalAlignmentTags:
     type: boolean
     default: true

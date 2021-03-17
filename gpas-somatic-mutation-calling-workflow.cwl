@@ -263,12 +263,6 @@ inputs:
     doc: Varscan2 parameter. GDC default is 0.07. P-value for high-confidence calling.
 
 outputs:
-  tumor_coclean_bam_uuid:
-    type: string
-    outputSource: gpas_upload/tumor_coclean_bam_uuid
-  tumor_coclean_bai_uuid:
-    type: string
-    outputSource: gpas_upload/tumor_coclean_bai_uuid
   muse_uuid:
     type: string
     outputSource: gpas_upload/muse_uuid
@@ -391,7 +385,6 @@ steps:
       max_normal_freq: max_normal_freq
       vps_p_value: vps_p_value
     out: [
-      cocleaned_tumor_bam,
       gdc_muse_vcf,
       gdc_mutect2_vcf,
       gdc_somaticsniper_vcf,
@@ -404,14 +397,11 @@ steps:
       job_uuid: job_uuid
       bioclient_config: bioclient_config
       upload_bucket: upload_bucket
-      tumor_bam: gdc_somatic_variant_calling/cocleaned_tumor_bam
       gdc_muse_vcf: gdc_somatic_variant_calling/gdc_muse_vcf
       gdc_mutect2_vcf: gdc_somatic_variant_calling/gdc_mutect2_vcf
       gdc_somaticsniper_vcf: gdc_somatic_variant_calling/gdc_somaticsniper_vcf
       gdc_varscan2_vcf: gdc_somatic_variant_calling/gdc_varscan2_vcf
     out: [
-      tumor_coclean_bam_uuid,
-      tumor_coclean_bai_uuid,
       muse_uuid,
       muse_index_uuid,
       mutect2_uuid,

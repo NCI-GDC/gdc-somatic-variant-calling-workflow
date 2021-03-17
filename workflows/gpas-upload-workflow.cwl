@@ -13,9 +13,6 @@ inputs:
   job_uuid: string
   bioclient_config: File
   upload_bucket: string
-  tumor_bam:
-    type: File
-    secondaryFiles: .bai
   gdc_muse_vcf:
     type: File
     secondaryFiles: .tbi
@@ -30,12 +27,6 @@ inputs:
     secondaryFiles: .tbi
 
 outputs:
-  tumor_coclean_bam_uuid:
-    type: string
-    outputSource: uuid_bam/output
-  tumor_coclean_bai_uuid:
-    type: string
-    outputSource: uuid_bam_index/output
   muse_uuid:
     type: string
     outputSource: uuid_muse/output
@@ -63,48 +54,6 @@ outputs:
 
 steps:
 ###UPLOAD###
-  rename_tumor_bam:
-    run: ../tools/util/rename_file.cwl
-    in:
-      input_file: tumor_bam
-      output_filename:
-        source: job_uuid
-        valueFrom: $(self + '.tumor_cocleaned.bam')
-    out: [out_file]
-
-  rename_tumor_bai:
-    run: ../tools/util/rename_file.cwl
-    in:
-      input_file:
-        source: tumor_bam
-        valueFrom: $(self.secondaryFiles[0])
-      output_filename:
-        source: job_uuid
-        valueFrom: $(self + '.tumor_cocleaned.bai')
-    out: [out_file]
-
-  upload_bam:
-    run: ../tools/util/bio_client_upload_pull_uuid.cwl
-    in:
-      config_file: bioclient_config
-      upload_bucket: upload_bucket
-      upload_key:
-        source: [job_uuid, rename_tumor_bam/out_file]
-        valueFrom: $(self[0])/$(self[1].basename)
-      local_file: rename_tumor_bam/out_file
-    out: [output]
-
-  upload_bam_index:
-    run: ../tools/util/bio_client_upload_pull_uuid.cwl
-    in:
-      config_file: bioclient_config
-      upload_bucket: upload_bucket
-      upload_key:
-        source: [job_uuid, rename_tumor_bai/out_file]
-        valueFrom: $(self[0])/$(self[1].basename)
-      local_file: rename_tumor_bai/out_file
-    out: [output]
-
   upload_muse:
     run: ../tools/util/bio_client_upload_pull_uuid.cwl
     in:
@@ -202,22 +151,6 @@ steps:
     out: [output]
 
 ###EXTRACT_UUID###
-  uuid_bam:
-    run: ../tools/util/emit_json_value.cwl
-    in:
-      input: upload_bam/output
-      key:
-        valueFrom: 'did'
-    out: [output]
-
-  uuid_bam_index:
-    run: ../tools/util/emit_json_value.cwl
-    in:
-      input: upload_bam_index/output
-      key:
-        valueFrom: 'did'
-    out: [output]
-
   uuid_muse:
     run: ../tools/util/emit_json_value.cwl
     in:

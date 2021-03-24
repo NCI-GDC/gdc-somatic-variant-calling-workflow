@@ -71,6 +71,21 @@ inputs:
     type: boolean
     default: false
     doc: If specified, it will include all the decoy sequences in the faidx. GDC default is false.
+  muse_timeout:
+    type: int?
+    doc: MuSE max runtime.
+  mutect2_timeout:
+    type: int?
+    doc: MuTect2 max runtime.
+  samtools_timeout:
+    type: int?
+    doc: samtools mpileup max runtime.
+  somaticsniper_timeout:
+    type: int?
+    doc: SomaticSniper max runtime.
+  varscan_timeout:
+    type: int?
+    doc: VarScan2 max runtime.
 
 ###GATK_INPUTS###
   gatk_logging_level:
@@ -318,11 +333,13 @@ steps:
       tumor_bam: gdc_gatk3_coclean/cocleaned_tumor_bam
       threads: threads
       map_q: map_q
+      timeout: samtools_timeout
     out: [ all_mpileups, true_mpileups ]
 
   gdc_muse:
     run: ./subworkflows/muse_workflow.cwl
     in:
+      timeout: muse_timeout
       reference: reference
       bed: faidx_to_bed/output_bed
       normal_bam: gdc_gatk3_coclean/cocleaned_normal_bam
@@ -338,6 +355,7 @@ steps:
   gdc_gatk3_mutect2:
     run: ./subworkflows/gatk3_mutect2_workflow.cwl
     in:
+      timeout: mutect2_timeout
       reference: reference
       bed: faidx_to_bed/output_bed
       normal_bam: gdc_gatk3_coclean/cocleaned_normal_bam
@@ -357,6 +375,7 @@ steps:
   gdc_somaticsniper:
     run: ./subworkflows/somaticsniper_workflow.cwl
     in:
+      timeout: somaticsniper_timeout
       reference: reference
       normal_bam: gdc_gatk3_coclean/cocleaned_normal_bam
       tumor_bam: gdc_gatk3_coclean/cocleaned_tumor_bam
@@ -381,6 +400,7 @@ steps:
   gdc_varscan2:
     run: ./subworkflows/varscan2_workflow.cwl
     in:
+      timeout: varscan_timeout
       reference: reference
       mpileups: gdc_samtools_mpileup/true_mpileups
       threads: threads

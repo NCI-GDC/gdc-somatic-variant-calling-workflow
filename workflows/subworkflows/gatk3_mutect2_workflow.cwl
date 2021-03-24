@@ -56,6 +56,9 @@ inputs:
     type: boolean
     default: false
     doc: MuTect2 parameter. GDC default is False. If set, MuTect2 will not use soft clipped bases.
+  timeout:
+    type: int?
+    doc: MuTect2 max runtime.
 
 outputs:
   mutect2_vcf:
@@ -77,6 +80,7 @@ steps:
       cont: cont
       duscb: duscb
       thread_count: threads
+      timeout: timeout
     out: [MUTECT2_OUTPUT]
 
   remove_non_standard_variants:

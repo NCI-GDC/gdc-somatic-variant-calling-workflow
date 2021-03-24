@@ -88,6 +88,21 @@ inputs:
     type: boolean
     default: false
     doc: If specified, it will include all the decoy sequences in the faidx. GDC default is false.
+  muse_timeout:
+    type: int?
+    doc: MuSE max runtime.
+  mutect2_timeout:
+    type: int?
+    doc: MuTect2 max runtime.
+  samtools_timeout:
+    type: int?
+    doc: samtools mpileup max runtime.
+  somaticsniper_timeout:
+    type: int?
+    doc: SomaticSniper max runtime.
+  varscan_timeout:
+    type: int?
+    doc: VarScan2 max runtime.
 
 ###GATK_INPUTS###
   gatk_logging_level:
@@ -339,6 +354,11 @@ steps:
       java_opts: java_opts
       threads: threads
       usedecoy: usedecoy
+      muse_timeout: muse_timeout
+      mutect2_timeout: mutect2_timeout
+      samtools_timeout: samtools_timeout
+      somaticsniper_timeout: somaticsniper_timeout
+      varscan_timeout: varscan_timeout
       gatk_logging_level: gatk_logging_level
       rtc_maxIntervalSize: rtc_maxIntervalSize
       rtc_minReadsAtLocus: rtc_minReadsAtLocus

@@ -37,7 +37,9 @@ inputs:
     type: int
     default: 1
     doc: Map quality.
-
+  timeout:
+    type: int?
+    doc: samtools mpileup max runtime.
 outputs:
   all_mpileups:
     type: File[]
@@ -56,6 +58,7 @@ steps:
       normal_bam: normal_bam
       tumor_bam: tumor_bam
       thread_count: threads
+      timeout: timeout
     out: [output_file]
 
   get_groups:

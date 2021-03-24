@@ -88,6 +88,9 @@ inputs:
     type: float
     default: 0.07
     doc: Varscan2 parameter. GDC default is 0.07. P-value for high-confidence calling.
+  timeout:
+    type: int?
+    doc: VarScan2 max runtime.
 
 outputs:
   varscan2_vcf:
@@ -119,6 +122,7 @@ steps:
       min_tumor_freq: min_tumor_freq
       max_normal_freq: max_normal_freq
       vps_p_value: vps_p_value
+      timeout: timeout
     out: [SNP_SOMATIC_HC, INDEL_SOMATIC_HC]
 
   remove_non_standard_variants_on_snp:

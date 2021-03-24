@@ -76,7 +76,9 @@ inputs:
     type: string
     default: 'vcf'
     doc: Somaticsniper parameter. GDC default is vcf. Output format. (classic/vcf/bed)
-
+  timeout:
+    type: int?
+    doc: SomaticSniper max runtime.
 outputs:
   somaticsniper_vcf:
     type: File
@@ -102,6 +104,7 @@ steps:
       nhap: nhap
       pd: pd
       fout: fout
+      timeout: timeout
     out: [ANNOTATED_VCF]
 
   remove_non_standard_variants:

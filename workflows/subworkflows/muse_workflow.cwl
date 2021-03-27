@@ -39,6 +39,9 @@ inputs:
   output_prefix:
     type: string
     doc: Output filename prefix.
+  timeout:
+    type: int?
+    doc: MuSE max runtime.
 
 outputs:
   muse_vcf:
@@ -54,6 +57,7 @@ steps:
       normal_bam: normal_bam
       tumor_bam: tumor_bam
       thread_count: threads
+      timeout: timeout
     out: [output_file]
 
   muse_sump:

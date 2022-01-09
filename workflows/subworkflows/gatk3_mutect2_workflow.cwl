@@ -84,7 +84,7 @@ steps:
     out: [MUTECT2_OUTPUT]
 
   remove_non_standard_variants:
-    run: ../../submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    run: ../../submodules/variant-filtration-cwl/tools/filter_nonstandard_variants.cwl
     in:
       input_vcf: mutect2/MUTECT2_OUTPUT
       output_filename:

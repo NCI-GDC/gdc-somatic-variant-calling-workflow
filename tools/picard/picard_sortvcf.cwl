@@ -4,7 +4,7 @@ id: picard_sortvcf
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/picard:c967a1329fc014aa5c6a92b506b11ab4ac495854e9f2dfe51badf490191a612e
+    dockerPull: quay.io/ncigdc/picard:2.26.10
   - class: ResourceRequirement
     coresMax: 1
 doc: |
@@ -43,7 +43,7 @@ outputs:
     secondaryFiles:
       - '.tbi'
 
-baseCommand: ['java', '-d64', '-XX:+UseSerialGC']
+baseCommand: ['java', '-XX:+UseSerialGC']
 arguments:
   - valueFrom: '16G'
     prefix: '-Xmx'

@@ -126,7 +126,7 @@ steps:
     out: [SNP_SOMATIC_HC, INDEL_SOMATIC_HC]
 
   remove_non_standard_variants_on_snp:
-    run: ../../submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    run: ../../submodules/variant-filtration-cwl/tools/filter_nonstandard_variants.cwl
     in:
       input_vcf: varscan2/SNP_SOMATIC_HC
       output_filename:
@@ -135,16 +135,16 @@ steps:
     out: [output_file]
 
   update_seqdict_on_snp:
-    run: ../../tools/picard/picard_update_seq_dict.cwl
+    run: ../../submodules/variant-filtration-cwl/tools/picard_update_sequence_dictionary.cwl
     in:
       input_vcf: remove_non_standard_variants_on_snp/output_file
       output_filename:
         source: output_prefix
         valueFrom: $(self + '.snp.upseqdict.vcf')
-      ref_dict:
+      sequence_dictionary:
         source: reference
         valueFrom: $(self.secondaryFiles[1])
-    out: [output_vcf_file]
+    out: [output_file]
 
   sort_snp_vcf:
     run: ../../tools/picard/picard_sortvcf.cwl
@@ -156,12 +156,12 @@ steps:
         source: output_prefix
         valueFrom: $(self + '.snp.sorted.vcf.gz')
       input_vcf:
-        source: update_seqdict_on_snp/output_vcf_file
+        source: update_seqdict_on_snp/output_file
         valueFrom: $([self])
     out: [sorted_vcf]
 
   remove_non_standard_variants_on_indel:
-    run: ../../submodules/variant-filtration-cwl/tools/RemoveNonStandardVariants.cwl
+    run: ../../submodules/variant-filtration-cwl/tools/filter_nonstandard_variants.cwl
     in:
       input_vcf: varscan2/INDEL_SOMATIC_HC
       output_filename:
@@ -170,16 +170,16 @@ steps:
     out: [output_file]
 
   update_seqdict_on_indel:
-    run: ../../tools/picard/picard_update_seq_dict.cwl
+    run: ../../submodules/variant-filtration-cwl/tools/picard_update_sequence_dictionary.cwl
     in:
       input_vcf: remove_non_standard_variants_on_indel/output_file
       output_filename:
         source: output_prefix
         valueFrom: $(self + '.indel.upseqdict.vcf')
-      ref_dict:
+      sequence_dictionary:
         source: reference
         valueFrom: $(self.secondaryFiles[1])
-    out: [output_vcf_file]
+    out: [output_file]
 
   sort_indel_vcf:
     run: ../../tools/picard/picard_sortvcf.cwl
@@ -191,19 +191,18 @@ steps:
         source: output_prefix
         valueFrom: $(self + '.indel.sorted.vcf.gz')
       input_vcf:
-        source: update_seqdict_on_indel/output_vcf_file
+        source: update_seqdict_on_indel/output_file
         valueFrom: $([self])
     out: [sorted_vcf]
 
   mergevcf:
-    run: ../../tools/picard/picard_mergevcf.cwl
+    run: ../../submodules/variant-filtration-cwl/tools/picard_merge_vcfs.cwl
     in:
-      java_opts: java_opts
       input_vcf: [sort_snp_vcf/sorted_vcf, sort_indel_vcf/sorted_vcf]
       output_filename:
         source: output_prefix
         valueFrom: $(self + '.raw_somatic_mutation.vcf.gz')
-      ref_dict:
+      sequence_dictionary:
         source: reference
         valueFrom: $(self.secondaryFiles[1])
     out: [output_vcf_file]

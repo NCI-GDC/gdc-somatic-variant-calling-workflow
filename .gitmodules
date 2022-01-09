@@ -17,7 +17,7 @@
 [submodule "submodules/variant-filtration-cwl"]
 	path = submodules/variant-filtration-cwl
 	url = git@github.com:NCI-GDC/variant-filtration-cwl.git
-	branch = submodule
+	branch = master
 [submodule "submodules/samtools-mpileup-cwl"]
 	path = submodules/samtools-mpileup-cwl
 	url = git@github.com:NCI-GDC/samtools-mpileup-cwl.git

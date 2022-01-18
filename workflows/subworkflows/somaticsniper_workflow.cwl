@@ -107,25 +107,25 @@ steps:
       timeout: timeout
     out: [ANNOTATED_VCF]
 
-  remove_non_standard_variants:
-    run: ../../submodules/variant-filtration-cwl/tools/filter_nonstandard_variants.cwl
-    in:
-      input_vcf: somaticsniper/ANNOTATED_VCF
-      output_filename:
-        source: output_prefix
-        valueFrom: $(self + '.standard_unsorted.vcf')
-    out: [output_file]
-
   update_seqdict:
     run: ../../submodules/variant-filtration-cwl/tools/picard_update_sequence_dictionary.cwl
     in:
-      input_vcf: remove_non_standard_variants/output_file
+      input_vcf: somaticsniper/ANNOTATED_VCF
       output_filename:
         source: output_prefix
         valueFrom: $(self + '.upseqdict.vcf')
       sequence_dictionary:
         source: reference
         valueFrom: $(self.secondaryFiles[1])
+    out: [output_file]
+
+  remove_non_standard_variants:
+    run: ../../submodules/variant-filtration-cwl/tools/filter_nonstandard_variants.cwl
+    in:
+      input_vcf: update_seqdict/output_file
+      output_filename:
+        source: output_prefix
+        valueFrom: $(self + '.standard_unsorted.vcf')
     out: [output_file]
 
   sort_somaticsniper_vcf:
@@ -138,6 +138,6 @@ steps:
         source: output_prefix
         valueFrom: $(self + '.raw_somatic_mutation.vcf.gz')
       input_vcf:
-        source: update_seqdict/output_file
+        source: remove_non_standard_variants/output_file
         valueFrom: $([self])
     out: [sorted_vcf]

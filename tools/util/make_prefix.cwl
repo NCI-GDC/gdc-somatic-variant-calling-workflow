@@ -16,9 +16,6 @@ inputs:
   mutect2_caller_id:
     type: string
 
-  somaticsniper_caller_id:
-    type: string
-
   varscan2_caller_id:
     type: string
 
@@ -46,7 +43,6 @@ expression: |
      var cid = [];
      cid.push(inputs.muse_caller_id);
      cid.push(inputs.mutect2_caller_id);
-     cid.push(inputs.somaticsniper_caller_id);
      cid.push(inputs.varscan2_caller_id);
      var pfx = [];
      for (var i = 0; i < cid.length; i++){

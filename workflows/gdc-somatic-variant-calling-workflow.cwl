@@ -326,7 +326,7 @@ steps:
       java_opts: java_opts
       output_prefix:
         source: prepare_vcf_prefix/output_prefix
-        valueFrom: $(self[3])
+        valueFrom: $(self[2])
       min_coverage: min_coverage
       min_cov_normal: min_cov_normal
       min_cov_tumor: min_cov_tumor
@@ -343,4 +343,3 @@ steps:
       max_normal_freq: max_normal_freq
       vps_p_value: vps_p_value
     out: [ varscan2_vcf ]
-

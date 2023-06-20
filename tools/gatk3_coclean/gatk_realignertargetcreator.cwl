@@ -3,7 +3,7 @@ cwlVersion: v1.0
 id: gatk_realignertargetcreator
 requirements:
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/cocleaning-tool:63a7464045a47625ba04b52a02523144dfde5afdc9cc237e570597fa7d53a192
+    dockerPull: quay.io/ncigdc/gatk3:nightly-2016-02-25-gf39d340
   - class: InlineJavascriptRequirement
 doc: |
   GATK3 RealignerTargetCreator
@@ -95,4 +95,4 @@ outputs:
     outputBinding:
       glob: $(inputs.log_to_file)
 
-baseCommand: [java, -jar, /usr/local/bin/GenomeAnalysisTK.jar, -T, RealignerTargetCreator]
+baseCommand: [java, -jar, /opt/GenomeAnalysisTK.jar, -T, RealignerTargetCreator]

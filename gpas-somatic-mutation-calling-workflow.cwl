@@ -63,9 +63,6 @@ inputs:
   mutect2_caller_id:
     type: string
     default: 'mutect2'
-  somaticsniper_caller_id:
-    type: string
-    default: 'somaticsniper'
   varscan2_caller_id:
     type: string
     default: 'varscan2'
@@ -97,12 +94,12 @@ inputs:
   samtools_timeout:
     type: int?
     doc: samtools mpileup max runtime.
-  somaticsniper_timeout:
-    type: int?
-    doc: SomaticSniper max runtime.
   varscan_timeout:
     type: int?
     doc: VarScan2 max runtime.
+  map_q:
+    type: int
+    default: 1
 
 ###GATK_INPUTS###
   gatk_logging_level:
@@ -168,52 +165,6 @@ inputs:
     type: boolean
     default: false
     doc: MuTect2 parameter. GDC default is False. If set, MuTect2 will not use soft clipped bases.
-
-###SOMATICSNIPER_INPUTS###
-  map_q:
-    type: int
-    default: 1
-    doc: Somaticsniper parameter. GDC default is 1. Filtering reads with mapping quality less than this value.
-  base_q:
-    type: int
-    default: 15
-    doc: Somaticsniper parameter. GDC default is 15. Filtering somatic snv output with somatic quality less than this value.
-  loh:
-    type: boolean
-    default: true
-    doc: Somaticsniper parameter. GDC default is True. Do not report LOH variants as determined by genotypes. (T/F)
-  gor:
-    type: boolean
-    default: true
-    doc: Somaticsniper parameter. GDC default is True. Do not report Gain of Reference variants as determined by genotypes. (T/F)
-  psc:
-    type: boolean
-    default: false
-    doc: Somaticsniper parameter. GDC default is False. Disable priors in the somatic calculation. Increases sensitivity for solid tumors. (T/F)
-  ppa:
-    type: boolean
-    default: false
-    doc: Somaticsniper parameter. GDC default is False. Use prior probabilities accounting for the somatic mutation rate. (T/F)
-  pps:
-    type: float
-    default: 0.01
-    doc: Somaticsniper parameter. GDC default is 0.01. Prior probability of a somatic mutation. (implies -J)
-  theta:
-    type: float
-    default: 0.85
-    doc: Somaticsniper parameter. GDC default is 0.85. Theta in maq consensus calling model. (for -c/-g)
-  nhap:
-    type: int
-    default: 2
-    doc: Somaticsniper parameter. GDC default is 2. Number of haplotypes in the sample.
-  pd:
-    type: float
-    default: 0.001
-    doc: Somaticsniper parameter. GDC default is 0.001. Prior of a difference between two haplotypes.
-  fout:
-    type: string
-    default: 'vcf'
-    doc: Somaticsniper parameter. GDC default is vcf. Output format. (classic/vcf/bed)
 
 ###VARSCAN2_INPUTS###
   min_coverage:
@@ -290,12 +241,6 @@ outputs:
   mutect2_index_uuid:
     type: string
     outputSource: gpas_upload/mutect2_index_uuid
-  somaticsniper_uuid:
-    type: string
-    outputSource: gpas_upload/somaticsniper_uuid
-  somaticsniper_index_uuid:
-    type: string
-    outputSource: gpas_upload/somaticsniper_index_uuid
   varscan2_uuid:
     type: string
     outputSource: gpas_upload/varscan2_uuid
@@ -340,7 +285,6 @@ steps:
       project_id: project_id
       muse_caller_id: muse_caller_id
       mutect2_caller_id: mutect2_caller_id
-      somaticsniper_caller_id: somaticsniper_caller_id
       varscan2_caller_id: varscan2_caller_id
       experimental_strategy: experimental_strategy
       tumor_bam: gpas_extract/tumor_with_index
@@ -357,7 +301,6 @@ steps:
       muse_timeout: muse_timeout
       mutect2_timeout: mutect2_timeout
       samtools_timeout: samtools_timeout
-      somaticsniper_timeout: somaticsniper_timeout
       varscan_timeout: varscan_timeout
       gatk_logging_level: gatk_logging_level
       rtc_maxIntervalSize: rtc_maxIntervalSize
@@ -379,16 +322,6 @@ steps:
       cont: cont
       duscb: duscb
       map_q: map_q
-      base_q: base_q
-      loh: loh
-      gor: gor
-      psc: psc
-      ppa: ppa
-      pps: pps
-      theta: theta
-      nhap: nhap
-      pd: pd
-      fout: fout
       min_coverage: min_coverage
       min_cov_normal: min_cov_normal
       min_cov_tumor: min_cov_tumor
@@ -407,7 +340,6 @@ steps:
     out: [
       gdc_muse_vcf,
       gdc_mutect2_vcf,
-      gdc_somaticsniper_vcf,
       gdc_varscan2_vcf
     ]
 
@@ -419,15 +351,12 @@ steps:
       upload_bucket: upload_bucket
       gdc_muse_vcf: gdc_somatic_variant_calling/gdc_muse_vcf
       gdc_mutect2_vcf: gdc_somatic_variant_calling/gdc_mutect2_vcf
-      gdc_somaticsniper_vcf: gdc_somatic_variant_calling/gdc_somaticsniper_vcf
       gdc_varscan2_vcf: gdc_somatic_variant_calling/gdc_varscan2_vcf
     out: [
       muse_uuid,
       muse_index_uuid,
       mutect2_uuid,
       mutect2_index_uuid,
-      somaticsniper_uuid,
-      somaticsniper_index_uuid,
       varscan2_uuid,
       varscan2_index_uuid
     ]

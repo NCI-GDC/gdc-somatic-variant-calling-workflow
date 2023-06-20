@@ -8,7 +8,6 @@ requirements:
   - class: MultipleInputFeatureRequirement
 doc: |
     GDC somatic variant calling workflow
-
 inputs:
 
 ###GENERAL_INPUTS###
@@ -20,9 +19,6 @@ inputs:
   mutect2_caller_id:
     type: string
     default: 'mutect2'
-  somaticsniper_caller_id:
-    type: string
-    default: 'somaticsniper'
   varscan2_caller_id:
     type: string
     default: 'varscan2'
@@ -80,12 +76,12 @@ inputs:
   samtools_timeout:
     type: int?
     doc: samtools mpileup max runtime.
-  somaticsniper_timeout:
-    type: int?
-    doc: SomaticSniper max runtime.
   varscan_timeout:
     type: int?
     doc: VarScan2 max runtime.
+  map_q:
+    type: int
+    default: 1
 
 ###GATK_INPUTS###
   gatk_logging_level:
@@ -152,52 +148,6 @@ inputs:
     default: false
     doc: MuTect2 parameter. GDC default is False. If set, MuTect2 will not use soft clipped bases.
 
-###SOMATICSNIPER_INPUTS###
-  map_q:
-    type: int
-    default: 1
-    doc: Somaticsniper parameter. GDC default is 1. Filtering reads with mapping quality less than this value.
-  base_q:
-    type: int
-    default: 15
-    doc: Somaticsniper parameter. GDC default is 15. Filtering somatic snv output with somatic quality less than this value.
-  loh:
-    type: boolean
-    default: true
-    doc: Somaticsniper parameter. GDC default is True. Do not report LOH variants as determined by genotypes. (T/F)
-  gor:
-    type: boolean
-    default: true
-    doc: Somaticsniper parameter. GDC default is True. Do not report Gain of Reference variants as determined by genotypes. (T/F)
-  psc:
-    type: boolean
-    default: false
-    doc: Somaticsniper parameter. GDC default is False. Disable priors in the somatic calculation. Increases sensitivity for solid tumors. (T/F)
-  ppa:
-    type: boolean
-    default: false
-    doc: Somaticsniper parameter. GDC default is False. Use prior probabilities accounting for the somatic mutation rate. (T/F)
-  pps:
-    type: float
-    default: 0.01
-    doc: Somaticsniper parameter. GDC default is 0.01. Prior probability of a somatic mutation. (implies -J)
-  theta:
-    type: float
-    default: 0.85
-    doc: Somaticsniper parameter. GDC default is 0.85. Theta in maq consensus calling model. (for -c/-g)
-  nhap:
-    type: int
-    default: 2
-    doc: Somaticsniper parameter. GDC default is 2. Number of haplotypes in the sample.
-  pd:
-    type: float
-    default: 0.001
-    doc: Somaticsniper parameter. GDC default is 0.001. Prior of a difference between two haplotypes.
-  fout:
-    type: string
-    default: 'vcf'
-    doc: Somaticsniper parameter. GDC default is vcf. Output format. (classic/vcf/bed)
-
 ###VARSCAN2_INPUTS###
   min_coverage:
     type: int
@@ -259,7 +209,6 @@ inputs:
     type: float
     default: 0.07
     doc: Varscan2 parameter. GDC default is 0.07. P-value for high-confidence calling.
-
 outputs:
   gdc_muse_vcf:
     type: File
@@ -267,13 +216,9 @@ outputs:
   gdc_mutect2_vcf:
     type: File
     outputSource: gdc_gatk3_mutect2/mutect2_vcf
-  gdc_somaticsniper_vcf:
-    type: File
-    outputSource: gdc_somaticsniper/somaticsniper_vcf
   gdc_varscan2_vcf:
     type: File
     outputSource: gdc_varscan2/varscan2_vcf
-
 steps:
   prepare_vcf_prefix:
     run: ../tools/util/make_prefix.cwl
@@ -281,7 +226,6 @@ steps:
       project_id: project_id
       muse_caller_id: muse_caller_id
       mutect2_caller_id: mutect2_caller_id
-      somaticsniper_caller_id: somaticsniper_caller_id
       varscan2_caller_id: varscan2_caller_id
       job_id: job_uuid
       experimental_strategy: experimental_strategy
@@ -372,31 +316,6 @@ steps:
       duscb: duscb
     out: [ mutect2_vcf ]
 
-  gdc_somaticsniper:
-    run: ./subworkflows/somaticsniper_workflow.cwl
-    in:
-      timeout: somaticsniper_timeout
-      reference: reference
-      normal_bam: gdc_gatk3_coclean/cocleaned_normal_bam
-      tumor_bam: gdc_gatk3_coclean/cocleaned_tumor_bam
-      mpileups: gdc_samtools_mpileup/all_mpileups
-      threads: threads
-      output_prefix:
-        source: prepare_vcf_prefix/output_prefix
-        valueFrom: $(self[2])
-      map_q: map_q
-      base_q: base_q
-      loh: loh
-      gor: gor
-      psc: psc
-      ppa: ppa
-      pps: pps
-      theta: theta
-      nhap: nhap
-      pd: pd
-      fout: fout
-    out: [ somaticsniper_vcf ]
-
   gdc_varscan2:
     run: ./subworkflows/varscan2_workflow.cwl
     in:
@@ -407,7 +326,7 @@ steps:
       java_opts: java_opts
       output_prefix:
         source: prepare_vcf_prefix/output_prefix
-        valueFrom: $(self[3])
+        valueFrom: $(self[2])
       min_coverage: min_coverage
       min_cov_normal: min_cov_normal
       min_cov_tumor: min_cov_tumor
@@ -424,4 +343,3 @@ steps:
       max_normal_freq: max_normal_freq
       vps_p_value: vps_p_value
     out: [ varscan2_vcf ]
-

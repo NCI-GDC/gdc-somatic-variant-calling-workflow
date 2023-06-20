@@ -1,7 +1,3 @@
-[submodule "submodules/somaticsniper-cwl"]
-	path = submodules/somaticsniper-cwl
-	url = git@github.com:NCI-GDC/somaticsniper-cwl.git
-	branch = master
 [submodule "submodules/varscan-cwl"]
 	path = submodules/varscan-cwl
 	url = git@github.com:NCI-GDC/varscan-cwl.git

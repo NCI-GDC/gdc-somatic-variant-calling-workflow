@@ -19,9 +19,6 @@ inputs:
   gdc_mutect2_vcf:
     type: File
     secondaryFiles: .tbi
-  gdc_somaticsniper_vcf:
-    type: File
-    secondaryFiles: .tbi
   gdc_varscan2_vcf:
     type: File
     secondaryFiles: .tbi
@@ -39,12 +36,6 @@ outputs:
   mutect2_index_uuid:
     type: string
     outputSource: uuid_mutect2_index/output
-  somaticsniper_uuid:
-    type: string
-    outputSource: uuid_somaticsniper/output
-  somaticsniper_index_uuid:
-    type: string
-    outputSource: uuid_somaticsniper_index/output
   varscan2_uuid:
     type: string
     outputSource: uuid_varscan2/output
@@ -102,30 +93,6 @@ steps:
         valueFrom: $(self.secondaryFiles[0])
     out: [output]
 
-  upload_somaticsniper:
-    run: ../tools/util/bio_client_upload_pull_uuid.cwl
-    in:
-      config_file: bioclient_config
-      upload_bucket: upload_bucket
-      upload_key:
-        source: [job_uuid, gdc_somaticsniper_vcf]
-        valueFrom: $(self[0])/$(self[1].basename)
-      local_file: gdc_somaticsniper_vcf
-    out: [output]
-
-  upload_somaticsniper_index:
-    run: ../tools/util/bio_client_upload_pull_uuid.cwl
-    in:
-      config_file: bioclient_config
-      upload_bucket: upload_bucket
-      upload_key:
-        source: [job_uuid, gdc_somaticsniper_vcf]
-        valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
-      local_file:
-        source: gdc_somaticsniper_vcf
-        valueFrom: $(self.secondaryFiles[0])
-    out: [output]
-
   upload_varscan2:
     run: ../tools/util/bio_client_upload_pull_uuid.cwl
     in:
@@ -179,22 +146,6 @@ steps:
     run: ../tools/util/emit_json_value.cwl
     in:
       input: upload_mutect2_index/output
-      key:
-        valueFrom: 'did'
-    out: [output]
-
-  uuid_somaticsniper:
-    run: ../tools/util/emit_json_value.cwl
-    in:
-      input: upload_somaticsniper/output
-      key:
-        valueFrom: 'did'
-    out: [output]
-
-  uuid_somaticsniper_index:
-    run: ../tools/util/emit_json_value.cwl
-    in:
-      input: upload_somaticsniper_index/output
       key:
         valueFrom: 'did'
     out: [output]

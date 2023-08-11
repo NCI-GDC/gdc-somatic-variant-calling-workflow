@@ -1,13 +1,31 @@
-class: CommandLineTool
 cwlVersion: v1.0
+class: CommandLineTool
 id: bio_client_download
 requirements:
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/bio-client:latest
-doc: |
-  Bioclient download.
+    dockerPull: "{{ docker_repo }}/bio-client:{{ bio_client }}"
+  - class: InlineJavascriptRequirement
+  - class: ResourceRequirement
+    coresMin: 1
+    coresMax: 1
+    ramMin: 2000
+    ramMax: 2000
+    tmpdirMin: $(Math.ceil (inputs.file_size / 1048576))
+    tmpdirMax: $(Math.ceil (inputs.file_size / 1048576))
+    outdirMin: $(Math.ceil (inputs.file_size / 1048576))
+    outdirMax: $(Math.ceil (inputs.file_size / 1048576))
+  - class: EnvVarRequirement
+    envDef:
+    - envName: "REQUESTS_CA_BUNDLE"
+      envValue: $(inputs.cert.path)
 
 inputs:
+  cert:
+      type: File
+      default:
+        class: File
+        location: /etc/ssl/certs/ca-certificates.crt
+
   config_file:
     type: File
     inputBinding:
@@ -31,6 +49,10 @@ inputs:
     type: string
     inputBinding:
       position: 98
+
+  file_size:
+    type: long
+    default: 1
 
 outputs:
   output:

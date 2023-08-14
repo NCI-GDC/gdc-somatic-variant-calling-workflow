@@ -3,7 +3,7 @@ class: CommandLineTool
 id: bio_client_download
 requirements:
   - class: DockerRequirement
-    dockerPull: "{{ docker_repo }}/bio-client:{{ bio_client }}"
+    dockerPull: quay.io/ncigdc/bio-client:latest
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     coresMin: 1

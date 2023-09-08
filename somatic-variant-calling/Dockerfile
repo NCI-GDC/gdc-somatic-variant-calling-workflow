@@ -5,6 +5,7 @@ ARG WORKFLOW
 
 COPY ./${WORKFLOW} /opt 
 COPY ./tools /tools
+COPY ./submodules /submodules
 
 WORKDIR /opt
 

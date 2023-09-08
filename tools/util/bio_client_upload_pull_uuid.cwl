@@ -1,14 +1,31 @@
-class: CommandLineTool
 cwlVersion: v1.0
+class: CommandLineTool
 id: bio_client_upload_pull_uuid
 requirements:
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/bio-client:latest
-doc: |
-  Bioclient upload.
+    dockerPull: "{{ docker_repository }}/bio-client:{{ bio_client }}"
+  - class: ResourceRequirement
+    coresMin: 1
+    coresMax: 1
+    ramMin: 1000
+    ramMax: 1000
+    tmpdirMin: 1
+    tmpdirMax: 1
+    outdirMin: 1
+    outdirMax: 1
+  - class: EnvVarRequirement
+    envDef:
+    - envName: "REQUESTS_CA_BUNDLE"
+      envValue: $(inputs.cert.path)
 
 inputs:
-  config_file:
+  cert:
+      type: File
+      default:
+        class: File
+        location: /etc/ssl/certs/ca-certificates.crt
+
+  config-file:
     type: File
     inputBinding:
       prefix: --config-file
@@ -20,19 +37,19 @@ inputs:
     inputBinding:
       position: 1
 
-  upload_bucket:
+  upload-bucket:
     type: string
     inputBinding:
       prefix: --upload-bucket
       position: 2
 
-  upload_key:
+  upload-key:
     type: string
     inputBinding:
       prefix: --upload_key
       position: 3
 
-  local_file:
+  input:
     type: File
     inputBinding:
       position: 99

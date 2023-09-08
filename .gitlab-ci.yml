@@ -19,8 +19,8 @@ build_dockers:
   before_script:
     - docker info
     - apk add --no-cache bash moreutils git go curl just
-    - git submodule update --init --recursive
   variables:
+    GIT_SUBMODULE_STRATEGY: recursive
     BASE_CONTAINER_REGISTRY: "docker.osdc.io"
   script:
     - /bin/bash build.sh -b "$CI_COMMIT_BRANCH" -n "$CI_COMMIT_SHORT_SHA"

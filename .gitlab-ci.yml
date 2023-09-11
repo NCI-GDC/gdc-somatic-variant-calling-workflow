@@ -16,9 +16,6 @@ build_dockers:
   tags:
     - dind
   image: docker:${DOCKER_VERSION}-dind
-  hooks:
-    pre_get_sources_script:
-      - apk add --no-cache openssh
   before_script:
     - docker info
     - apk add --no-cache bash moreutils git go curl just

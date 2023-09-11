@@ -16,9 +16,11 @@ build_dockers:
   tags:
     - dind
   image: docker:${DOCKER_VERSION}-dind
+  pre_clone_script:
+    - apk add --no-cache ssh
   before_script:
     - docker info
-    - apk add --no-cache bash moreutils git go curl just ssh
+    - apk add --no-cache bash moreutils git go curl just
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     BASE_CONTAINER_REGISTRY: "docker.osdc.io"

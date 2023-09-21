@@ -92,7 +92,7 @@ steps:
     out: [ output ]
 
   make_reference:
-    run: ../../tools/util/make_secondary.cwl
+    run: ../../tools/util/make_gdc_secondary.cwl
     in:
       fasta_file: reference
       fasta_fai: reference_fai

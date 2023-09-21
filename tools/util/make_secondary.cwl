@@ -34,7 +34,7 @@ outputs:
     outputBinding:
       glob: $(inputs.parent_file.basename)
     secondaryFiles:
-      - .bai
+      - $(inputs.children.basename) 
 
 baseCommand: "true"
 

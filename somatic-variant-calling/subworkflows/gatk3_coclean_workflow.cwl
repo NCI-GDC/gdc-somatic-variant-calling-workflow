@@ -171,9 +171,7 @@ steps:
     run: ../../tools/util/make_secondary.cwl
     in:
       parent_file: get_cocleaned_normal/output
-      children:
-        source: rename_normal_input_bai/out_file
-        valueFrom: $([self])
+      children: rename_normal_input_bai/out_file
     out: [ output ]
 
   rename_tumor_input_bai:
@@ -191,7 +189,5 @@ steps:
     run: ../../tools/util/make_secondary.cwl
     in:
       parent_file: get_cocleaned_tumor/output
-      children:
-        source: rename_tumor_input_bai/out_file
-        valueFrom: $([self])
+      children: rename_tumor_input_bai/out_file
     out: [ output ]

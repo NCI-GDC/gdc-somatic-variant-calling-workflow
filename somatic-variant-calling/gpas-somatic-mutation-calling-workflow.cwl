@@ -251,7 +251,7 @@ outputs:
 steps:
 
   gpas_extract:
-    run: ./workflows/gpas-extract-workflow.cwl
+    run: ./gpas-extract-workflow.cwl
     in:
       bioclient_config: bioclient_config
       tumor_gdc_id: tumor_gdc_id
@@ -280,7 +280,7 @@ steps:
     ]
 
   gdc_somatic_variant_calling:
-    run: ./workflows/gdc-somatic-variant-calling-workflow.cwl
+    run: ./gdc-somatic-variant-calling-workflow.cwl
     in:
       project_id: project_id
       muse_caller_id: muse_caller_id
@@ -344,7 +344,7 @@ steps:
     ]
 
   gpas_upload:
-    run: ./workflows/gpas-upload-workflow.cwl
+    run: ./gpas-upload-workflow.cwl
     in:
       job_uuid: job_uuid
       bioclient_config: bioclient_config

@@ -1,0 +1,15 @@
+{
+    "template": "git@github.com:NCI-GDC/bio-cwl-template.git",
+    "commit": "89c6da5892ba45e8eb5779073b524567d70c11bc",
+    "context": {
+      "cookiecutter": {
+        "repository_name": "gdc-somatic-variant-calling-workflow",
+        "workflow_name": "somatic-variant-calling",
+        "commit": "89c6da5892ba45e8eb5779073b524567d70c11bc",
+        "_template": "git@github.com:NCI-GDC/bio-cwl-template.git"
+      }
+    },
+    "directory": null,
+    "checkout": null
+  }
+

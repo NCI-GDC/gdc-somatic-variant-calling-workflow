@@ -6,10 +6,12 @@ requirements:
     dockerPull: "{{ docker_repository }}/bio-alpine:{{ bio_alpine }}"
   - class: InitialWorkDirRequirement
     listing:
-      - entryname: $(inputs.parent_file.basename)
-        entry: $(inputs.parent_file)
-      - entryname: $(inputs.children.basename)
-        entry: $(inputs.children)
+      - entryname: $(inputs.fasta_file.basename)
+        entry: $(inputs.fasta_file)
+      - entryname: $(inputs.fasta_fai.basename)
+        entry: $(inputs.fasta_fai)
+      - entryname: $(inputs.fasta_dict.basename)
+        entry: $(inputs.fasta_dict)
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     coresMin: 1
@@ -22,19 +24,23 @@ requirements:
     outdirMax: 1
 
 inputs:
-  parent_file:
+  fasta_file:
     type: File
 
-  children:
+  fasta_fai:
+    type: File
+
+  fasta_dict:
     type: File
 
 outputs:
   output:
     type: File
     outputBinding:
-      glob: $(inputs.parent_file.basename)
+      glob: $(inputs.fasta_file.basename)
     secondaryFiles:
-      - $(inputs.children.basename) 
+      - .fai
+      - ^.dict
 
 baseCommand: "true"
 

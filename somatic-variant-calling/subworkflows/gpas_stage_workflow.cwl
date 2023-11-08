@@ -67,9 +67,7 @@ steps:
     run: ../../tools/util/make_secondary.cwl
     in:
       parent_file: normal
-      children:
-        source: standardize_normal_bai/out_file
-        valueFrom: $([self])
+      children: standardize_normal_bai/out_file
     out: [ output ]
 
   standardize_tumor_bai:
@@ -90,52 +88,41 @@ steps:
     run: ../../tools/util/make_secondary.cwl
     in:
       parent_file: tumor
-      children:
-        source: standardize_tumor_bai/out_file
-        valueFrom: $([self])
+      children: standardize_tumor_bai/out_file
     out: [ output ]
 
   make_reference:
-    run: ../../tools/util/make_secondary.cwl
+    run: ../../tools/util/make_gdc_secondary.cwl
     in:
-      parent_file: reference
-      children:
-        source: [reference_fai, reference_dict]
-        valueFrom: $(self)
+      fasta_file: reference
+      fasta_fai: reference_fai
+      fasta_dict: reference_dict
     out: [ output ]
 
   make_pon:
     run: ../../tools/util/make_secondary.cwl
     in:
       parent_file: pon
-      children:
-        source: pon_index
-        valueFrom: $([self])
+      children: pon_index
     out: [ output ]
 
   make_cosmic:
     run: ../../tools/util/make_secondary.cwl
     in:
       parent_file: cosmic
-      children:
-        source: cosmic_index
-        valueFrom: $([self])
+      children: cosmic_index
     out: [ output ]
 
   make_dbsnp:
     run: ../../tools/util/make_secondary.cwl
     in:
       parent_file: dbsnp
-      children:
-        source: dbsnp_index
-        valueFrom: $([self])
+      children: dbsnp_index
     out: [ output ]
 
   make_indel:
     run: ../../tools/util/make_secondary.cwl
     in:
       parent_file: indel
-      children:
-        source: indel_index
-        valueFrom: $([self])
+      children: indel_index
     out: [ output ]

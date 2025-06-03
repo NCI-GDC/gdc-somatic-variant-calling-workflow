@@ -1,5 +1,7 @@
 {
         "docker_repository": "docker.osdc.io/ncigdc",
         "bio_client": "latest",
-	"bio_alpine": "base"
+	"bio_alpine": "base",
+	"gatk": "3.7-a9a6115",
+	"picard": "2.26.10-7c1f408"
 }

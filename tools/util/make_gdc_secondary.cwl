@@ -3,7 +3,7 @@ class: CommandLineTool
 id: root_vcf
 requirements:
   - class: DockerRequirement
-    dockerPull: "{{ docker_repository }}/bio-alpine:{{ bio_alpine }}"
+    dockerPull: "{{ docker_repo }}/bio-alpine:{{ bio_alpine }}"
   - class: InitialWorkDirRequirement
     listing:
       - entryname: $(inputs.fasta_file.basename)

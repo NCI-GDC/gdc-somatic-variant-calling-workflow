@@ -2,6 +2,6 @@
         "docker_repo": "docker.osdc.io/ncigdc",
         "bio_client": "latest",
 	"bio_alpine": "base",
-	"gatk": "3.7-6f065cd",
+	"gatk": "3.7-1be4fea",
 	"picard": "2.26.10-7c1f408"
 }

@@ -95,4 +95,4 @@ outputs:
     outputBinding:
       glob: $(inputs.log_to_file)
 
-baseCommand: [java, -jar, /opt/GenomeAnalysisTK.jar, -T, RealignerTargetCreator]
+baseCommand: [java, -jar, /usr/local/bin/GenomeAnalysisTK.jar, -T, RealignerTargetCreator]

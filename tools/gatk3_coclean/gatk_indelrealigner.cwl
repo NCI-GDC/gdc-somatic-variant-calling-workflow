@@ -132,4 +132,4 @@ outputs:
     outputBinding:
       glob: $(inputs.log_to_file)
 
-baseCommand: [java, -jar, /usr/local/bin/GenomeAnalysisTK.jar, -T, IndelRealigner]
+baseCommand: [-T, IndelRealigner]

@@ -84,4 +84,3 @@ Step inputs<br>
 ## For GDC users
 
 The entrypoint CWL workflow for GDC users is `gpas-somatic-mutation-calling-workflow.cwl`.
-

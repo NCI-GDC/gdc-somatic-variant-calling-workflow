@@ -3,5 +3,6 @@
         "bio_client": "latest",
 	"bio_alpine": "base",
 	"gatk": "3.7-49797a8",
+	"variant_filtration_tool": "build-102-70b101b5",
 	"picard": "2.26.10-7c1f408"
 }

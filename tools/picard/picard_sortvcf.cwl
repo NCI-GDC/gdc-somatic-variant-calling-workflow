@@ -4,7 +4,7 @@ id: picard_sortvcf
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/picard:2.26.10
+    dockerPull: "{{ docker_repo }}/picard:{{ picard }}"
   - class: ResourceRequirement
     coresMax: 1
 doc: |

@@ -3,7 +3,7 @@ cwlVersion: v1.0
 id: gatk_indelrealigner
 requirements:
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk3:nightly-2016-02-25-gf39d340
+    dockerPull: "{{ docker_repo }}/gatk:{{ gatk }}"
   - class: InlineJavascriptRequirement
 doc: |
   GATK3 IndelRealigner
@@ -132,4 +132,4 @@ outputs:
     outputBinding:
       glob: $(inputs.log_to_file)
 
-baseCommand: [java, -jar, /opt/GenomeAnalysisTK.jar, -T, IndelRealigner]
+baseCommand: [java, -Xmx4G, -jar, /usr/local/bin/GenomeAnalysisTK.jar, -T, IndelRealigner]

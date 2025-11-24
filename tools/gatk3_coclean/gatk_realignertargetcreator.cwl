@@ -3,7 +3,7 @@ cwlVersion: v1.0
 id: gatk_realignertargetcreator
 requirements:
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk3:nightly-2016-02-25-gf39d340
+    dockerPull: "{{ docker_repository }}/gatk3:{{ gatk3 }}"
   - class: InlineJavascriptRequirement
 doc: |
   GATK3 RealignerTargetCreator

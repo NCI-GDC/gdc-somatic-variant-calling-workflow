@@ -3,7 +3,7 @@ cwlVersion: v1.0
 id: gatk_realignertargetcreator
 requirements:
   - class: DockerRequirement
-    dockerPull: "{{ docker_repository }}/gatk3:{{ gatk3 }}"
+    dockerPull: "{{ docker_repository }}/gatk:{{ gatk }}"
   - class: InlineJavascriptRequirement
 doc: |
   GATK3 RealignerTargetCreator

@@ -1,4 +1,5 @@
 # GDC DNA-Seq Somatic Variant Calling Workflow
+
 ![Version badge](https://img.shields.io/badge/MuSE-v1.0rc__submission__c039ffa-brightgreen.svg)
 ![Version badge](https://img.shields.io/badge/GATK3.6-nightly--2016--02--25--gf39d340-brightgreen.svg)
 ![Version badge](https://img.shields.io/badge/SomaticSniper-1.0.5.0-brightgreen.svg)
